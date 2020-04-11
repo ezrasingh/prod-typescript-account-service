@@ -8,6 +8,7 @@
       "@types/node": "^8.0.29",
       "chai": "^4.2.0",
       "mocha": "^7.1.1",
+      "nodemon": "^2.0.3",
       "ts-node": "3.3.0",
       "tslint": "^6.1.1",
       "typescript": "3.3.3333"
@@ -30,9 +31,22 @@
       "typeorm": "0.2.24"
    },
    "scripts": {
-      "start": "ts-node src/index.ts",
+			"start": "node --inspect=5858 -r ts-node/register ./src/index.ts",
+			"start:dev" : "nodemon",
+      "test:dev": "nodemon --watch . --ext ts --exec \"mocha -r ts-node/register src/**/*.spec.ts\"",
       "test": "mocha -r ts-node/register  src/**/*.spec.ts",
       "lint": "tslint -c tslint.json 'src/**/*.ts'",
-      "lint:fix": "tslint -c tslint.json 'src/**/*.ts --fix"
-   }
+			"lint:fix": "tslint -c tslint.json 'src/**/*.ts --fix",
+			"build": "tsc"
+	 },
+	 "nodemonConfig": {
+		 "ignore": [
+			 ".git",
+			 "node_modules",
+			 ".vscode"
+		 ],
+		 "watch": [ "src" ],
+		 "exec": "npm start",
+		 "ext": "ts"
+	 }
 }
