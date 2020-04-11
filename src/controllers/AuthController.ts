@@ -1,15 +1,13 @@
+import { Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import { getRepository } from "typeorm";
 import { validate } from "class-validator";
 
-import { IControllerHandler } from "./types";
 import { User } from "../models/User";
 import config from "../config/config";
 
 class AuthController {
-	static login = async (handler: IControllerHandler) => {
-		const { req, res } = handler;
-
+	static login = async (req: Request, res: Response) => {
 		// ? Check if username and password are set
 		const { username, password } = req.body;
 		if(!(username && password)) {
@@ -43,9 +41,7 @@ class AuthController {
 		res.send(token);
 	};
 
-	static changePassword = async (handler: IControllerHandler) => {
-		const { req, res } = handler;
-
+	static changePassword = async (req: Request, res: Response) => {
 		// ? Get ID from JWT
 		const id = res.locals.jwtPayload.userId;
 

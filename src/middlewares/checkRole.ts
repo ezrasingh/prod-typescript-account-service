@@ -1,15 +1,17 @@
+import { Request, Response, NextFunction } from "express";
 import { getRepository } from "typeorm";
 
-import { IMiddlewareHandler } from "./types";
 import { User } from "../models/User";
 
 /**
  * Summary. This middleware will be called on private routes based on user roles.
  */
 export const checkRole = (roles: string[]) => {
-	return async (handler: IMiddlewareHandler) => {
-		const { req, res, next } = handler;
-
+	return async (
+		req: Request,
+		res: Response,
+		next: NextFunction
+	) => {
 		// ? Get the user ID from previous middleware
 		const id = res.locals.jwtPayload.userId;
 

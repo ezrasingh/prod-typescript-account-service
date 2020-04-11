@@ -1,13 +1,11 @@
+import { Request, Response } from "express";
 import { getRepository } from "typeorm";
 import { validate } from "class-validator";
 
-import { IControllerHandler } from "./types";
 import { User } from "../models/User";
 
 class UserController {
-	static listAll = async (handler: IControllerHandler) => {
-		const { req, res } = handler;
-
+	static listAll = async (req: Request, res: Response) => {
 		// ? Get users from db
 		const userRepository = getRepository(User);
 		let users: User[];
@@ -19,9 +17,7 @@ class UserController {
 		res.send(users);
 	};
 
-	static getUser = async (handler: IControllerHandler) => {
-		const { req, res } = handler;
-
+	static getUser = async (req: Request, res: Response) => {
 		// ? Get ID from URL
 		const id: number = +req.params.id;
 
@@ -41,9 +37,7 @@ class UserController {
 		res.send(user);
 	};
 
-	static createUser = async (handler: IControllerHandler) => {
-		const { req, res } = handler;
-
+	static createUser = async (req: Request, res: Response) => {
 		// ? Get parameters from the body
 		const { username, password, role } = req.body;
 		const user = new User();
@@ -74,9 +68,7 @@ class UserController {
 		res.status(201).send("user created");
 	};
 
-	static updateUser = async (handler: IControllerHandler) => {
-		const { req, res } = handler;
-
+	static updateUser = async (req: Request, res: Response) => {
 		// ? Get ID from URL
 		const id: number = +req.params.id;
 
@@ -115,9 +107,7 @@ class UserController {
 		res.status(204).send();
 	};
 
-	static deleteUser = async (handler: IControllerHandler) => {
-		const { req, res } = handler;
-
+	static deleteUser = async (req: Request, res: Response) => {
 		// ? Get ID from the url
 		const id: number = +req.params.url;
 
