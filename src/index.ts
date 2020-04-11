@@ -21,3 +21,5 @@ async function startServer(port: number) {
 }
 
 startServer(PORT as number);
+
+export default app;
