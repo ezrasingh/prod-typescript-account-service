@@ -3,7 +3,11 @@
    "version": "0.0.1",
    "description": "Microservice to handle user authentication and accounts",
    "devDependencies": {
+      "@types/chai": "^4.2.11",
+      "@types/mocha": "^7.0.2",
       "@types/node": "^8.0.29",
+      "chai": "^4.2.0",
+      "mocha": "^7.1.1",
       "ts-node": "3.3.0",
       "tslint": "^6.1.1",
       "typescript": "3.3.3333"
@@ -17,6 +21,7 @@
       "bcryptjs": "^2.4.3",
       "class-validator": "^0.11.1",
       "cors": "^2.8.5",
+      "express": "^4.17.1",
       "helmet": "^3.22.0",
       "jsonwebtoken": "^8.5.1",
       "reflect-metadata": "^0.1.10",
@@ -25,8 +30,9 @@
       "typeorm": "0.2.24"
    },
    "scripts": {
-			"start": "ts-node src/index.ts",
-			"lint": "tslint -c tslint.json 'src/**/*.ts'",
-			"lint:fix": "tslint -c tslint.json 'src/**/*.ts --fix"
+      "start": "ts-node src/index.ts",
+      "test": "mocha -r ts-node/register  src/**/*.spec.ts",
+      "lint": "tslint -c tslint.json 'src/**/*.ts'",
+      "lint:fix": "tslint -c tslint.json 'src/**/*.ts --fix"
    }
 }
