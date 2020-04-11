@@ -9,7 +9,7 @@ const app = new Application();
 
 async function startServer(port: number) {
 	try {
-		const connection = await createConnection();
+		await createConnection();
 		app.server.listen(port, () => {
 			// tslint:disable-next-line:no-console
 			console.log(`Server stated on port ${port}`);
