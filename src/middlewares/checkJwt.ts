@@ -21,7 +21,7 @@ export const checkJwt = (
 		!req.headers.Authorization ||
 		!req.headers.Authorization.startsWith('Bearer ')
 	) {
-		res.status(401).send("Invalid authorization header");
+		res.status(400).send("Invalid authorization header");
 		return;
 	}
 
