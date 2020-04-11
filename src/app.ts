@@ -21,7 +21,7 @@ class Application {
 	};
 
 	private routes(): void {
-		this.server.use('/', routes);
+		this.server.use('/api', routes);
 	};
 
 };
