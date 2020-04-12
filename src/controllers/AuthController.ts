@@ -8,9 +8,9 @@ import config from "../config/config";
 
 class AuthController {
 	static login = async (req: Request, res: Response) => {
-		// ? Check if username and password are set
-		const { username, password } = req.body;
-		if(!(username && password)) {
+		// ? Check if email and password are set
+		const { email, password } = req.body;
+		if(!(email && password)) {
 			res.status(400).send();
 		}
 
@@ -18,7 +18,7 @@ class AuthController {
 		const userRepository = getRepository(User);
 		let user: User;
 		try {
-			user = await userRepository.findOneOrFail({ where: { username }});
+			user = await userRepository.findOneOrFail({ where: { email }});
 		}
 		catch (error) {
 			res.status(401).send();
@@ -32,13 +32,55 @@ class AuthController {
 
 		// ? sign JWT, valid for 1hr
 		const token = jwt.sign(
-			{ userId: user.id, username: user.username },
+			{ userId: user.id, email: user.email },
 			config.jwtSecret,
 			{ expiresIn: '1h' }
 		);
 
 		// ? send token in response
 		res.send(token);
+	};
+
+	static register = async (req: Request, res: Response) => {
+		const { email, password, confirmPassword } = req.body;
+		// ? check if email and password are set
+		if(!(email && password)){
+			res.status(400).send();
+			return;
+		}
+
+		// ? check if password matches confirmation password
+		if(!(password === confirmPassword)){
+			res.status(400).send();
+			return;
+		}
+
+		// ? build user entity
+		const user = new User();
+		user.email = email;
+		user.password = password;
+
+		// ? validate user entry
+		const errors = await validate(user);
+		if(errors.length > 0){
+			res.status(400).send(errors);
+			return;
+		}
+
+		// ? hash password to securely store credentials
+		user.hashPassword();
+
+		// ? try to store user, else email is already taken
+		const userRepository = getRepository(User);
+		try {
+			await userRepository.save(user);
+		}
+		catch (error){
+			res.status(409).send("email already in use");
+			return;
+		}
+
+		res.status(201).send("user created");
 	};
 
 	static changePassword = async (req: Request, res: Response) => {
@@ -52,12 +94,12 @@ class AuthController {
 		}
 
 		// ? Get user from the db
-		const userRespository = getRepository(User);
+		const userRepository = getRepository(User);
 		let user: User;
 		try {
-			user = await userRespository.findOneOrFail(id);
+			user = await userRepository.findOneOrFail(id);
 		}
-		catch (id) {
+		catch (error) {
 			res.status(401).send();
 		}
 
@@ -77,7 +119,7 @@ class AuthController {
 
 		// ? hash new password and persist changes
 		user.hashPassword();
-		userRespository.save(user);
+		userRepository.save(user);
 
 		res.status(204).send();
 	};
