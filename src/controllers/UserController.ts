@@ -11,7 +11,7 @@ class UserController {
 		let users: User[];
 		users = await userRepository.find({
 			// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
-			select: [ "id", "username", "role" ]
+			select: [ "id", "email", "role" ]
 		})
 
 		res.send(users);
@@ -27,7 +27,7 @@ class UserController {
 		try {
 			user = await userRepository.findOneOrFail(id, {
 				// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
-				select: [ "id", "username", "role" ]
+				select: [ "id", "email", "role" ]
 			});
 		}
 		catch (error) {
@@ -38,30 +38,30 @@ class UserController {
 	};
 
 	static createUser = async (req: Request, res: Response) => {
-		// ? Get parameters from the body
-		const { username, password, role } = req.body;
+		// ? get parameters from the body
+		const { email, password, role } = req.body;
 		const user = new User();
-		user.username = username;
+		user.email = email;
 		user.password = password;
 		user.role = role;
 
-		// ? Validate user entry
+		// ? validate user entry
 		const errors = await validate(user);
 		if(errors.length > 0) {
 			res.status(400).send(errors);
 			return;
 		}
 
-		// ? Hash password to securely store credentials
+		// ? hash password to securely store credentials
 		user.hashPassword();
 
-		// ? Try to store user, else username is already taken
+		// ? try to store user, else email is already taken
 		const userRepository = getRepository(User);
 		try {
 			await userRepository.save(user);
 		}
 		catch (error) {
-			res.status(409).send("username already in use");
+			res.status(409).send("email already in use");
 			return;
 		}
 
@@ -73,7 +73,7 @@ class UserController {
 		const id: number = +req.params.id;
 
 		// ? Get parameters from body
-		const { username, role } = req.body;
+		const { email, role } = req.body;
 
 		// ? Try to find user in db
 		const userRepository = getRepository(User);
@@ -87,7 +87,7 @@ class UserController {
 		}
 
 		// ? Validate updated values on the model
-		user.username = username;
+		user.email = email;
 		user.role = role;
 		const errors = await validate(user);
 		if(errors.length > 0) {
@@ -123,7 +123,7 @@ class UserController {
 		}
 
 		// ? Remove user from db
-		userRepository.delete(id);
+		userRepository.delete(user);
 
 		res.status(204).send();
 	};
