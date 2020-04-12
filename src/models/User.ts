@@ -9,6 +9,13 @@ import {
 import { Length, IsEmail, IsNotEmpty } from "class-validator";
 import * as bcrypt from "bcryptjs";
 
+export enum UserRole {
+	ADMIN = "admin",
+	CUSTOMER = "customer",
+	STAFF = "staff",
+	EDITOR = "editor"
+}
+
 @Entity()
 @Unique(["email"])
 export class User {
@@ -24,7 +31,11 @@ export class User {
 	@Length(4, 100)
 	password: string;
 
-	@Column()
+	@Column({
+		type: "enum",
+		enum: UserRole,
+		default: UserRole.CUSTOMER
+	})
 	@IsNotEmpty()
 	role: string;
 
