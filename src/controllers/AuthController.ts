@@ -45,13 +45,13 @@ class AuthController {
 		const { email, password, confirmPassword } = req.body;
 		// ? check if email and password are set
 		if(!(email && password)){
-			res.status(400).send();
+			res.status(400).send("missing user registration body");
 			return;
 		}
 
 		// ? check if password matches confirmation password
-		if(!(password === confirmPassword)){
-			res.status(400).send();
+		if(password !== confirmPassword){
+			res.status(400).send("passwords do not match");
 			return;
 		}
 
