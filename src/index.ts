@@ -1,18 +1,29 @@
 import 'reflect-metadata';
-import { createConnection } from 'typeorm';
+import { ConnectionManager, Connection } from 'typeorm';
 
 import Application from './app';
 
+const ENV = process.env.NODE_ENV || 'development';
 const PORT = process.env.PORT || 5000;
 
+const connectionManager = new ConnectionManager();
 const app = new Application();
 
-async function startServer(port: number) {
+function initalizeConnection(): Connection {
+	const config = {
+		development: () => import('./config/development/database'),
+		staging: () => import('./config/staging/database'),
+		production: () => import('./config/production/database')
+	}
+	return connectionManager.create(config[ ENV ]);
+}
+
+async function startServer(db: Connection) {
+	await db.connect();
 	try {
-		await createConnection();
-		app.server.listen(port, () => {
+		app.server.listen(PORT, () => {
 			// tslint:disable-next-line:no-console
-			console.log(`Server stated on port ${port}`);
+			console.log(`Server stated on port ${PORT}`);
 		});
 	} catch (error) {
 		// tslint:disable-next-line:no-console
@@ -20,6 +31,9 @@ async function startServer(port: number) {
 	}
 }
 
-startServer(PORT as number);
+const db = initalizeConnection();
+
+startServer(db);
 
 export default app;
+export { db };
