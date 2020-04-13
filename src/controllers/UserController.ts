@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
-import { getRepository } from "typeorm";
-import { validate } from "class-validator";
+import { Request, Response } from 'express';
+import { getRepository } from 'typeorm';
+import { validate } from 'class-validator';
 
-import { User } from "../models/User";
+import { User } from '../models/User';
 
 class UserController {
 	static listAll = async (req: Request, res: Response) => {
@@ -11,8 +11,8 @@ class UserController {
 		let users: User[];
 		users = await userRepository.find({
 			// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
-			select: [ "id", "email", "role" ]
-		})
+			select: ['id', 'email', 'role']
+		});
 
 		res.send(users);
 	};
@@ -27,11 +27,10 @@ class UserController {
 		try {
 			user = await userRepository.findOneOrFail(id, {
 				// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
-				select: [ "id", "email", "role" ]
+				select: ['id', 'email', 'role']
 			});
-		}
-		catch (error) {
-			res.status(404).send("User not found");
+		} catch (error) {
+			res.status(404).send('User not found');
 		}
 
 		res.send(user);
@@ -47,7 +46,7 @@ class UserController {
 
 		// ? validate user entry
 		const errors = await validate(user);
-		if(errors.length > 0) {
+		if (errors.length > 0) {
 			res.status(400).send(errors);
 			return;
 		}
@@ -59,13 +58,12 @@ class UserController {
 		const userRepository = getRepository(User);
 		try {
 			await userRepository.save(user);
-		}
-		catch (error) {
-			res.status(409).send("email already in use");
+		} catch (error) {
+			res.status(409).send('email already in use');
 			return;
 		}
 
-		res.status(201).send("user created");
+		res.status(201).send('user created');
 	};
 
 	static updateUser = async (req: Request, res: Response) => {
@@ -80,9 +78,8 @@ class UserController {
 		let user: User;
 		try {
 			user = await userRepository.findOneOrFail(id);
-		}
-		catch (error) {
-			res.status(404).send("User not found");
+		} catch (error) {
+			res.status(404).send('User not found');
 			return;
 		}
 
@@ -90,7 +87,7 @@ class UserController {
 		user.email = email;
 		user.role = role;
 		const errors = await validate(user);
-		if(errors.length > 0) {
+		if (errors.length > 0) {
 			res.status(400).send(errors);
 			return;
 		}
@@ -98,9 +95,8 @@ class UserController {
 		// ? Try to store user, else username is already taken
 		try {
 			await userRepository.save(user);
-		}
-		catch (error) {
-			res.status(409).send("username already in use");
+		} catch (error) {
+			res.status(409).send('username already in use');
 			return;
 		}
 
@@ -116,9 +112,8 @@ class UserController {
 		let user: User;
 		try {
 			user = await userRepository.findOneOrFail(id);
-		}
-		catch (error) {
-			res.status(404).send("user not found");
+		} catch (error) {
+			res.status(404).send('user not found');
 			return;
 		}
 
@@ -130,4 +125,3 @@ class UserController {
 }
 
 export default UserController;
-

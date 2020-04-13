@@ -5,19 +5,19 @@ import {
 	Unique,
 	CreateDateColumn,
 	UpdateDateColumn
-} from "typeorm";
-import { Length, IsEmail, IsNotEmpty } from "class-validator";
-import * as bcrypt from "bcryptjs";
+} from 'typeorm';
+import { Length, IsEmail, IsNotEmpty } from 'class-validator';
+import * as bcrypt from 'bcryptjs';
 
 export enum UserRole {
-	ADMIN = "admin",
-	CUSTOMER = "customer",
-	STAFF = "staff",
-	EDITOR = "editor"
+	ADMIN = 'admin',
+	CUSTOMER = 'customer',
+	STAFF = 'staff',
+	EDITOR = 'editor'
 }
 
 @Entity()
-@Unique(["email"])
+@Unique(['email'])
 export class User {
 	@PrimaryGeneratedColumn()
 	id!: number;
@@ -32,7 +32,7 @@ export class User {
 	password: string;
 
 	@Column({
-		type: "enum",
+		type: 'enum',
 		enum: UserRole,
 		default: UserRole.CUSTOMER
 	})
@@ -54,4 +54,4 @@ export class User {
 	verifyPassword(rawPassword: string): boolean {
 		return bcrypt.compareSync(rawPassword, this.password);
 	}
-};
+}

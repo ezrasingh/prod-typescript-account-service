@@ -1,17 +1,13 @@
-import { Request, Response, NextFunction } from "express";
-import { getRepository } from "typeorm";
+import { Request, Response, NextFunction } from 'express';
+import { getRepository } from 'typeorm';
 
-import { User } from "../models/User";
+import { User } from '../models/User';
 
 /**
  * Summary. This middleware will be called on private routes based on user roles.
  */
 export const checkRole = (roles: string[]) => {
-	return async (
-		req: Request,
-		res: Response,
-		next: NextFunction
-	) => {
+	return async (req: Request, res: Response, next: NextFunction) => {
 		// ? Get the user ID from previous middleware
 		const id = res.locals.jwtPayload.userId;
 
@@ -20,8 +16,7 @@ export const checkRole = (roles: string[]) => {
 		let user: User;
 		try {
 			user = await userRepository.findOneOrFail(id);
-		}
-		catch(error) {
+		} catch (error) {
 			res.status(401).send();
 		}
 
