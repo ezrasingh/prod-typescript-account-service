@@ -123,7 +123,7 @@ class UserController {
 		res.status(204).send();
 	};
 
-	static whoami = async(req: Request, res: Response) => {
+	static whoami = async (req: Request, res: Response) => {
 		// ? retrieve user Id from JWT payload
 		const { userId } = res.locals.jwtPayload;
 
@@ -140,7 +140,7 @@ class UserController {
 		}
 
 		res.send(user);
-	}
+	};
 }
 
 export default UserController;
