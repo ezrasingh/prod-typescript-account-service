@@ -91,6 +91,7 @@ class AuthController {
 			user = await userRepository.findOneOrFail(userId);
 		} catch (error) {
 			res.status(401).send();
+			return;
 		}
 
 		// ? generate fresh token
