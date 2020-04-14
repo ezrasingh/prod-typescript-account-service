@@ -1,39 +1,32 @@
 import 'reflect-metadata';
-import { ConnectionManager, Connection } from 'typeorm';
+import { Connection } from 'typeorm';
+import * as dotenv from 'dotenv';
 
+import { startServer, shutdownServer } from './utils';
 import Application from './app';
 
-const ENV = process.env.NODE_ENV || 'development';
-const PORT = process.env.PORT || 5000;
+dotenv.config();
 
-const connectionManager = new ConnectionManager();
+// ? initialize resources
 const app = new Application();
+let db: Connection;
 
-function initalizeConnection(): Connection {
-	const config = {
-		development: () => import('./config/development/database'),
-		staging: () => import('./config/staging/database'),
-		production: () => import('./config/production/database')
-	}
-	return connectionManager.create(config[ ENV ]);
+/** driver code to handle graceful start */
+async function run(){
+	await startServer(app, db);
 }
 
-async function startServer(db: Connection) {
-	await db.connect();
-	try {
-		app.server.listen(PORT, () => {
-			// tslint:disable-next-line:no-console
-			console.log(`Server stated on port ${PORT}`);
-		});
-	} catch (error) {
-		// tslint:disable-next-line:no-console
-		console.log(error);
-	}
+/** driver code to handle graceful stop */
+async function shutdown(){
+	await shutdownServer(app, db);
 }
 
-const db = initalizeConnection();
+if(process.argv.includes('run')){
+	run();
+}
 
-startServer(db);
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 export default app;
 export { db };
