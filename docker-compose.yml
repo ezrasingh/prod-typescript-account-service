@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+ pg:
+  image: postgres:alpine
+  restart: always
+  environment:
+    POSTGRES_USER: pg
+    POSTGRES_PASSWORD: default
+    PGDATA: /var/lib/postgresql/data/pg_data

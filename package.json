@@ -2,6 +2,10 @@
    "name": "accounts-service",
    "version": "0.0.1",
    "description": "Microservice to handle user authentication and accounts",
+   "engines": {
+      "node": ">=12.0.0.",
+      "npm": "=6.0.0"
+   },
    "devDependencies": {
       "@types/chai": "^4.2.11",
       "@types/mocha": "^7.0.2",
@@ -23,25 +27,38 @@
       "@types/cors": "^2.8.6",
       "@types/helmet": "0.0.45",
       "@types/jsonwebtoken": "^8.3.9",
+      "@types/morgan": "^1.9.0",
       "bcryptjs": "^2.4.3",
       "class-validator": "^0.11.1",
       "cors": "^2.8.5",
+      "dotenv": "^8.2.0",
       "express": "^4.17.1",
+      "express-request-id": "^1.4.1",
       "helmet": "^3.22.0",
+      "http-terminator": "^2.0.2",
       "jsonwebtoken": "^8.5.1",
+      "morgan": "^1.10.0",
+      "pg": "^8.0.2",
       "reflect-metadata": "^0.1.10",
       "sqlite3": "^4.0.3",
       "ts-node-dev": "^1.0.0-pre.44",
       "typeorm": "0.2.24"
    },
    "scripts": {
-      "start": "node --inspect=5858 -r ts-node/register ./src/index.ts",
+      "start": "node --inspect=5858 -r ts-node/register ./src/index.ts run",
       "start:dev": "nodemon",
       "test:dev": "nodemon --watch . --ext ts --exec \"mocha -r ts-node/register src/**/*.spec.ts\"",
       "test": "mocha -r ts-node/register  src/**/*.spec.ts",
       "lint": "tslint -c tslint.json 'src/**/*.ts'",
       "lint:fix": "tslint -c tslint.json 'src/**/*.ts --fix",
-      "build": "tsc"
+			"build": "tsc",
+			"docker:host": "echo %DOCKER_HOST% || echo ${DOCKER_HOST}",
+      "docker:dev:build": "docker-compose -f docker-compose.yml -f docker/docker-compose.dev.yml build",
+      "docker:dev": "docker-compose -f docker-compose.yml -f docker/docker-compose.dev.yml up -d",
+      "docker:staging:build": "docker-compose -f docker-compose.yml -f docker/docker-compose.staging.yml build",
+      "docker:staging": "docker-compose -f docker-compose.yml -f docker/docker-compose.staging.yml up",
+      "docker:down": "docker-compose down",
+      "dev": "npm run docker:dev && npm run start:dev"
    },
    "nodemonConfig": {
       "ignore": [
@@ -54,13 +71,13 @@
       ],
       "exec": "npm start",
       "ext": "ts"
-	 },
-	 "prettier": {
-		 "useTabs": true,
-		 "semi": true,
-		 "singleQuote": true,
-		 "trailingComma": "none",
-		 "bracketSpacing": true,
-		 "arrowParens": "avoid"
-	 }
+   },
+   "prettier": {
+      "useTabs": true,
+      "semi": true,
+      "singleQuote": true,
+      "trailingComma": "none",
+      "bracketSpacing": true,
+      "arrowParens": "avoid"
+   }
 }
