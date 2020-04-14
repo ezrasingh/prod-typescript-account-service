@@ -10,6 +10,10 @@ import * as jwt from 'jsonwebtoken';
  *  Otherwise, send a response with the 401 (unauthorized) status code.
  */
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
+	// ? Handle case-insensitive headers
+	if (req.headers.authorization) {
+		req.headers.Authorization = req.headers.authorization as string;
+	}
 	// ? Check Authorization header
 	if (
 		!req.headers.Authorization ||
