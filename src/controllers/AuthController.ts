@@ -12,6 +12,7 @@ class AuthController {
 		const { email, password } = req.body;
 		if (!(email && password)) {
 			res.status(400).send();
+			return;
 		}
 
 		// ? Get user from db
@@ -21,6 +22,7 @@ class AuthController {
 			user = await userRepository.findOneOrFail({ where: { email } });
 		} catch (error) {
 			res.status(401).send();
+			return;
 		}
 
 		// ? check if password is valid
