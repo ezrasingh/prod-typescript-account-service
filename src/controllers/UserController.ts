@@ -122,6 +122,25 @@ class UserController {
 
 		res.status(204).send();
 	};
+
+	static whoami = async(req: Request, res: Response) => {
+		// ? retrieve user Id from JWT payload
+		const { userId } = res.locals.jwtPayload;
+
+		// ? Get user from db
+		const userRepository = getRepository(User);
+		let user: User;
+		try {
+			user = await userRepository.findOneOrFail(userId, {
+				// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
+				select: ['id', 'email', 'role']
+			});
+		} catch (error) {
+			res.status(404).send('Invalid user ID');
+		}
+
+		res.send(user);
+	}
 }
 
 export default UserController;

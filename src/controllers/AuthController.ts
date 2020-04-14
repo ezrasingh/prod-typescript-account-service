@@ -4,7 +4,7 @@ import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
 
 import { User } from '../models/User';
-import config from '../config/config';
+import { generateToken } from '../utils';
 
 class AuthController {
 	static login = async (req: Request, res: Response) => {
@@ -30,11 +30,7 @@ class AuthController {
 		}
 
 		// ? sign JWT, valid for 1hr
-		const token = jwt.sign(
-			{ userId: user.id, email: user.email },
-			config.jwtSecret,
-			{ expiresIn: '1h' }
-		);
+		const token = generateToken(user, req.app.locals.jwtSecret);
 
 		// ? send token in response
 		res.send(token);
@@ -79,6 +75,26 @@ class AuthController {
 		}
 
 		res.status(201).send('user created');
+	};
+
+	static refreshToken = async (req: Request, res: Response) => {
+		// ? load user ID from JWT token
+		const { userId } = res.locals.jwtPayload;
+
+		// ? load user's contents
+		const userRepository = getRepository(User);
+		let user: User;
+		try {
+			user = await userRepository.findOneOrFail(userId);
+		} catch (error) {
+			res.status(401).send();
+		}
+
+		// ? generate fresh token
+		const token = generateToken(user, req.app.locals.jwtSecret);
+
+		// ? send token in response
+		res.send(token);
 	};
 
 	static changePassword = async (req: Request, res: Response) => {

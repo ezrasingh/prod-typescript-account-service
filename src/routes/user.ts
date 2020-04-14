@@ -5,6 +5,12 @@ import { checkRole } from '../middlewares/checkRole';
 
 const router = Router();
 
+// ? User operations
+
+router.get('/me', [checkJwt], UserController.whoami);
+
+// ? Administration CRUD operations
+
 /** Get all users */
 router.get('/', [checkJwt, checkRole(['ADMIN'])], UserController.listAll);
 

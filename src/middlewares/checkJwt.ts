@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 
-import config from '../config/config';
-
 /**
  * Summary. This middleware will be called on every route that requires a logged user.
  *
@@ -32,7 +30,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 
 	// ? Try to validate the token and get data
 	try {
-		const jwtPayload = jwt.verify(token, config.jwtSecret) as any;
+		const jwtPayload = jwt.verify(token, req.app.locals.jwtSecret) as any;
 		res.locals.jwtPayload = jwtPayload;
 	} catch (error) {
 		// ? If token is not valid, respond with 401 (unauthorized)
