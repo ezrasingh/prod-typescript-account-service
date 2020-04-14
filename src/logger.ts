@@ -22,7 +22,7 @@ class Logger {
 	public status(): RequestHandler {
 		return morgan(this.format, {
 			skip: function (_req: Request, res: Response) {
-					return res.statusCode >= 400;
+				return res.statusCode >= 400;
 			},
 			stream: process.stdout
 		});

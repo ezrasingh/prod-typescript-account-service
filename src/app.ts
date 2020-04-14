@@ -16,18 +16,22 @@ class Application {
 
 	constructor() {
 		this.server = express();
-		this.logger = new Logger(':id :method :url :status :res[content-length] - :response-time ms');
+		this.logger = new Logger(
+			':id :method :url :status :res[content-length] - :response-time ms'
+		);
 		this.generateJwtSecret();
 		this.middleware();
 		this.routes();
 	}
 
 	/** attach server to port and begin listening for request */
-	public start(port: number): void{
+	public start(port: number): void {
 		try {
 			this.listener = this.server.listen(port, () => {
 				// tslint:disable-next-line:no-console
-				console.log(`Server listening on port: ${this.listener.address().port}`);
+				console.log(
+					`Server listening on port: ${this.listener.address().port}`
+				);
 			});
 		} catch (error) {
 			// tslint:disable-next-line:no-console
@@ -35,11 +39,11 @@ class Application {
 		}
 	}
 
-	private generateJwtSecret(): void{
-		const key: string[] =
-			[ ...Array(process.env.SECRET_KEY_SIZE) ]
-			.map(_i => Math.random().toString(36).substring(2));
-		this.server.locals.jwtSecret = key.join('')
+	private generateJwtSecret(): void {
+		const key: string[] = [...Array(process.env.SECRET_KEY_SIZE)].map(_i =>
+			Math.random().toString(36).substring(2)
+		);
+		this.server.locals.jwtSecret = key.join('');
 	}
 
 	private middleware(): void {

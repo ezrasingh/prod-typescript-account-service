@@ -12,16 +12,16 @@ const app = new Application();
 let db: Connection;
 
 /** driver code to handle graceful start */
-async function run(){
+async function run() {
 	await startServer(app, db);
 }
 
 /** driver code to handle graceful stop */
-async function shutdown(){
+async function shutdown() {
 	await shutdownServer(app, db);
 }
 
-if(process.argv.includes('run')){
+if (process.argv.includes('run')) {
 	run();
 }
 
