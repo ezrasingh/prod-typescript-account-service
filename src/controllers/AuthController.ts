@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
 
-import { User } from '../models/User';
+import { User, UserRole } from '../models/User';
 import { generateToken } from '../utils';
 
 class AuthController {
@@ -56,10 +56,12 @@ class AuthController {
 		const user = new User();
 		user.email = email;
 		user.password = password;
+		user.role = UserRole.CUSTOMER;
 
 		// ? validate user entry
 		const errors = await validate(user);
 		if (errors.length > 0) {
+			console.log(errors);
 			res.status(400).send(errors);
 			return;
 		}
