@@ -61,7 +61,6 @@ class AuthController {
 		// ? validate user entry
 		const errors = await validate(user);
 		if (errors.length > 0) {
-			console.log(errors);
 			res.status(400).send(errors);
 			return;
 		}
