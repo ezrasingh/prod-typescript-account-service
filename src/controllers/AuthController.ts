@@ -36,7 +36,7 @@ class AuthController {
 		const token = generateToken(user, req.app.locals.jwtSecret);
 
 		// ? send token in response
-		res.send(token);
+		res.send({ token });
 	};
 
 	static register = async (req: Request, res: Response) => {
@@ -48,7 +48,9 @@ class AuthController {
 		}
 
 		// ? Validate new password
-		const validationErrors: string[] = passwordValidator.validate(password, { list: true }) as string[];
+		const validationErrors: string[] = passwordValidator.validate(password, {
+			list: true
+		}) as string[];
 		if (validationErrors.length > 0) {
 			res.status(401).send({ validationErrors });
 			return;
@@ -106,7 +108,7 @@ class AuthController {
 		const token = generateToken(user, req.app.locals.jwtSecret);
 
 		// ? send token in response
-		res.send(token);
+		res.send({ token });
 	};
 
 	static changePassword = async (req: Request, res: Response) => {
@@ -121,14 +123,16 @@ class AuthController {
 		}
 
 		// ? Validate new password
-		const validationErrors: string[] = passwordValidator.validate(newPassword, { list: true }) as string[];
+		const validationErrors: string[] = passwordValidator.validate(newPassword, {
+			list: true
+		}) as string[];
 		if (validationErrors.length > 0) {
 			res.status(401).send({ validationErrors });
 			return;
 		}
 
 		// ? check if new password matches confirmation password
-		if(newPassword !== confirmPassword){
+		if (newPassword !== confirmPassword) {
 			res.status(400).send('new passwords do not match');
 			return;
 		}
