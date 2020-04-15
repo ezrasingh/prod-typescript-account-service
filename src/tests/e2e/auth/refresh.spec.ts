@@ -1,4 +1,5 @@
 import { createSandbox, SinonSandbox, fake } from 'sinon';
+import * as chai from 'chai';
 import * as request from 'supertest';
 import 'mocha';
 
@@ -32,7 +33,7 @@ describe('Accounts service Auth API', () => {
 
 		it('should deflect if user does not exist', async () => {
 			sandbox.stub(typeorm, 'getRepository').returns({
-				findOneOrFail: fake.throws(new Error('user does not exist'))
+				findOneOrFail: fake.throws('user does not exist')
 			} as any);
 
 			await request(app.server)
@@ -46,10 +47,12 @@ describe('Accounts service Auth API', () => {
 				.stub(typeorm, 'getRepository')
 				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
-			await request(app.server)
+			const res = await request(app.server)
 				.get('/api/auth/refresh')
 				.set('Authorization', `Bearer ${token}`)
 				.expect(200);
+
+			chai.expect(res.body.token).to.be.a('string');
 		});
 	});
 });

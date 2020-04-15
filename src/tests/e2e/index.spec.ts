@@ -6,8 +6,11 @@ import app from '../../index';
 
 describe('Accounts service application', () => {
 	it('should pass health check', async () => {
-		await request(app.server)
-			.post('/health')
-			.expect(200, { status: 'UP', environment: process.env.NODE_ENV });
+		const res = await request(app.server).post('/health').expect(200);
+
+		assert.deepEqual(res.body, {
+			status: 'UP',
+			environment: process.env.NODE_ENV
+		});
 	});
 });

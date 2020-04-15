@@ -1,5 +1,6 @@
-import { createSandbox, SinonSandbox, spy, fake } from 'sinon';
+import { createSandbox, SinonSandbox, fake } from 'sinon';
 import * as assert from 'assert';
+import * as chai from 'chai';
 import * as request from 'supertest';
 import 'mocha';
 
@@ -32,7 +33,7 @@ describe('Accounts service Auth API', () => {
 
 		it('should deflect if user does not exist', async () => {
 			sandbox.stub(typeorm, 'getRepository').returns({
-				findOneOrFail: fake.throws(new Error('user does not exist'))
+				findOneOrFail: fake.throws('user does not exist')
 			} as any);
 			await request(app.server)
 				.post('/api/auth/login')
@@ -47,12 +48,10 @@ describe('Accounts service Auth API', () => {
 				.stub(typeorm, 'getRepository')
 				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
-
 			await request(app.server)
 				.post('/api/auth/login')
 				.send(userCredentials)
 				.expect(401);
-
 		});
 
 		it('should issue a signed jwt upon valid credentials', async () => {
@@ -60,10 +59,12 @@ describe('Accounts service Auth API', () => {
 				.stub(typeorm, 'getRepository')
 				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
-			await request(app.server)
+			const res = await request(app.server)
 				.post('/api/auth/login')
 				.send(userCredentials)
 				.expect(200);
+
+			chai.expect(res.body.token).to.be.a('string');
 		});
 	});
 });

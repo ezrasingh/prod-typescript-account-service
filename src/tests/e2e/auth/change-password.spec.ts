@@ -1,12 +1,12 @@
 import { createSandbox, SinonSandbox, spy, fake } from 'sinon';
 import * as assert from 'assert';
-import * as chai from 'chai';
 import * as request from 'supertest';
 import * as classValidator from 'class-validator';
 import 'mocha';
 
 import * as typeorm from 'typeorm';
 import app from '../../../index';
+
 import { User, UserRole } from '../../../models/User';
 import { generateToken } from '../../../utils';
 import { passwordValidator } from '../../../controllers/AuthController';
@@ -27,7 +27,7 @@ describe('Accounts service Auth API', () => {
 				oldPassword: mockUser.password,
 				newPassword: 'new-validPASS123',
 				confirmPassword: 'new-validPASS123'
-			}
+			};
 			mockUser.hashPassword();
 			token = generateToken(mockUser, app.server.locals.jwtSecret);
 			sandbox = createSandbox();
@@ -38,10 +38,8 @@ describe('Accounts service Auth API', () => {
 		});
 
 		it('should deflect if missing JWT', async () => {
-			await request(app.server)
-				.post('/api/auth/change-password')
-				.expect(400);
-		})
+			await request(app.server).post('/api/auth/change-password').expect(400);
+		});
 
 		it('should deflect if missing body', async () => {
 			await request(app.server)
@@ -51,7 +49,7 @@ describe('Accounts service Auth API', () => {
 		});
 
 		it('should deflect if new password fails validation', async () => {
-			const mockValidationErrors = [ 'min', 'uppercase', 'digits' ];
+			const mockValidationErrors = ['min', 'uppercase', 'digits'];
 			sandbox
 				.stub(passwordValidator, 'validate')
 				.value(fake.returns(mockValidationErrors));
@@ -76,9 +74,9 @@ describe('Accounts service Auth API', () => {
 		});
 
 		it('should deflect if user does not exist', async () => {
-			sandbox
-				.stub(typeorm, 'getRepository')
-				.returns({ findOneOrFail: fake.throws(new Error('user does not exist')) } as any);
+			sandbox.stub(typeorm, 'getRepository').returns({
+				findOneOrFail: fake.throws('user does not exist')
+			} as any);
 
 			await request(app.server)
 				.post('/api/auth/change-password')
@@ -108,7 +106,7 @@ describe('Accounts service Auth API', () => {
 
 			sandbox
 				.stub(classValidator, 'validate')
-				.value(fake.resolves([ 'error_1', 'error_2' ]));
+				.value(fake.resolves(['error_1', 'error_2']));
 
 			await request(app.server)
 				.post('/api/auth/change-password')
@@ -117,19 +115,17 @@ describe('Accounts service Auth API', () => {
 				.expect(400);
 		});
 
-		it('should update user\'s password', async () => {
-			sandbox
-				.stub(typeorm, 'getRepository')
-				.returns({
-					findOneOrFail: fake.resolves(mockUser),
-					save: fake()
-				} as any);
+		it("should update user's password", async () => {
+			sandbox.stub(typeorm, 'getRepository').returns({
+				findOneOrFail: fake.resolves(mockUser),
+				save: fake()
+			} as any);
 
 			await request(app.server)
 				.post('/api/auth/change-password')
 				.set('Authorization', `Bearer ${token}`)
 				.send(mockPayload)
 				.expect(204);
-			});
+		});
 	});
 });

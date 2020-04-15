@@ -33,7 +33,7 @@ describe('Accounts service Auth API', () => {
 		it('should deflect if password does not meet validation', async () => {
 			sandbox
 				.stub(passwordValidator, 'validate')
-				.value(fake.returns([ 'min', 'uppercase', 'digits' ]));
+				.value(fake.returns(['min', 'uppercase', 'digits']));
 
 			await request(app.server)
 				.post('/api/auth/register')
@@ -60,13 +60,11 @@ describe('Accounts service Auth API', () => {
 		});
 
 		it('should deflect if account already exist', async () => {
-			sandbox
-				.stub(passwordValidator, 'validate')
-				.value(fake.resolves([]));
+			sandbox.stub(passwordValidator, 'validate').value(fake.resolves([]));
 
 			sandbox
 				.stub(typeorm, 'getRepository')
-				.returns({ save: fake.throws(new Error('user already exist')) } as any);
+				.returns({ save: fake.throws('user already exist') } as any);
 
 			await request(app.server)
 				.post('/api/auth/register')
@@ -75,13 +73,9 @@ describe('Accounts service Auth API', () => {
 		});
 
 		it('should register user account', async () => {
-			sandbox
-				.stub(passwordValidator, 'validate')
-				.value(fake.resolves([]));
+			sandbox.stub(passwordValidator, 'validate').value(fake.resolves([]));
 
-			sandbox
-				.stub(typeorm, 'getRepository')
-				.returns({ save: fake() } as any);
+			sandbox.stub(typeorm, 'getRepository').returns({ save: fake() } as any);
 
 			await request(app.server)
 				.post('/api/auth/register')
