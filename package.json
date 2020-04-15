@@ -50,6 +50,7 @@
       "typeorm": "0.2.24"
    },
    "scripts": {
+		 	"postinstall": "cp template.env .env",
       "clean:ports": "kill-port 5000",
       "start": "node -r ts-node/register ./src/index.ts run",
       "start:dev": "nodemon",
