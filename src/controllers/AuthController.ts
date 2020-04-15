@@ -114,7 +114,7 @@ class AuthController {
 		const id = res.locals.jwtPayload.userId;
 
 		// ? Get parameters from the body
-		const { oldPassword, newPassword } = req.body;
+		const { oldPassword, newPassword, confirmPassword } = req.body;
 		if (!(oldPassword && newPassword)) {
 			res.status(400).send();
 			return;
@@ -124,6 +124,12 @@ class AuthController {
 		const validationErrors: string[] = passwordValidator.validate(newPassword, { list: true }) as string[];
 		if (validationErrors.length > 0) {
 			res.status(401).send({ validationErrors });
+			return;
+		}
+
+		// ? check if new password matches confirmation password
+		if(newPassword !== confirmPassword){
+			res.status(400).send('new passwords do not match');
 			return;
 		}
 
