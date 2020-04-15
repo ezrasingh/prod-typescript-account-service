@@ -9,6 +9,8 @@ import {
 import { Length, IsEmail, IsNotEmpty } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
 
+const salt: number = +process.env.BCRYPT_SALT_LEN || 8;
+
 export enum UserRole {
 	ADMIN = 'admin',
 	CUSTOMER = 'customer',
@@ -28,7 +30,7 @@ export class User {
 	email: string;
 
 	@Column()
-	@Length(4, 100)
+	@Length(8, 100)
 	password: string;
 
 	@Column({
@@ -48,7 +50,7 @@ export class User {
 	updatedAt: Date;
 
 	hashPassword(): void {
-		this.password = bcrypt.hashSync(this.password, 8);
+		this.password = bcrypt.hashSync(this.password, salt);
 	}
 
 	verifyPassword(rawPassword: string): boolean {
