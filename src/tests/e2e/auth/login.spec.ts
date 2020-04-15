@@ -1,14 +1,11 @@
 import { createSandbox, SinonSandbox, spy } from 'sinon';
 import * as assert from 'assert';
 import * as request from 'supertest';
-import * as chai from 'chai';
 import 'mocha';
 
 import * as typeorm from 'typeorm';
-import app from '../../index';
-import { User } from '../../models/User';
-
-const expect = chai.expect;
+import app from '../../../index';
+import { User } from '../../../models/User';
 
 describe('Accounts service Auth API', () => {
 	describe('Login Endpoint', async () => {
@@ -20,8 +17,8 @@ describe('Accounts service Auth API', () => {
 			mockUser = new User();
 			mockUser.email = 'fake@user.com';
 			mockUser.password = 'letmein';
+			userCredentials = { email: mockUser.email, password: mockUser.password };
 			mockUser.hashPassword();
-			userCredentials = { email: 'fake@user.com', password: 'letmein' };
 			sandbox = createSandbox();
 		});
 
@@ -50,12 +47,15 @@ describe('Accounts service Auth API', () => {
 			sandbox
 				.stub(typeorm, 'getRepository')
 				.returns({ findOneOrFail: spyOnFind } as any);
+
 			sandbox.stub(mockUser, 'verifyPassword').returns(false);
+
 			await request(app.server)
 				.post('/api/auth/login')
 				.send(userCredentials)
 				.expect(401);
-			assert.deepEqual(spyOnFind.callCount, 1);
+
+			assert(spyOnFind.calledOnce);
 		});
 
 		it('should issue a signed jwt upon valid credentials', async () => {
@@ -63,11 +63,13 @@ describe('Accounts service Auth API', () => {
 			sandbox
 				.stub(typeorm, 'getRepository')
 				.returns({ findOneOrFail: spyOnFind } as any);
+
 			await request(app.server)
 				.post('/api/auth/login')
 				.send(userCredentials)
 				.expect(200);
-			assert.deepEqual(spyOnFind.callCount, 1);
+
+			assert(spyOnFind.calledOnce);
 		});
 	});
 });

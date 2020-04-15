@@ -1,13 +1,11 @@
-import { createSandbox, SinonSandbox, spy } from 'sinon';
-import * as assert from 'assert';
-import * as chai from 'chai';
+import { createSandbox, SinonSandbox } from 'sinon';
 import * as request from 'supertest';
 import 'mocha';
 
 import * as typeorm from 'typeorm';
-import app from '../../index';
-import { User, UserRole } from '../../models/User';
-import { generateToken } from '../../utils';
+import app from '../../../index';
+import { User, UserRole } from '../../../models/User';
+import { generateToken } from '../../../utils';
 
 describe('Accounts service Auth API', () => {
 	describe('Refresh Endpoint', async () => {
@@ -38,6 +36,7 @@ describe('Accounts service Auth API', () => {
 					throw new Error();
 				}
 			} as any);
+
 			await request(app.server)
 				.get('/api/auth/refresh')
 				.set('Authorization', `Bearer ${token}`)
@@ -48,6 +47,7 @@ describe('Accounts service Auth API', () => {
 			sandbox
 				.stub(typeorm, 'getRepository')
 				.returns({ findOneOrFail: async () => mockUser } as any);
+
 			await request(app.server)
 				.get('/api/auth/refresh')
 				.set('Authorization', `Bearer ${token}`)

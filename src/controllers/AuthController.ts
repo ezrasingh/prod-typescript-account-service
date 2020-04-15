@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import * as jwt from 'jsonwebtoken';
 import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
 
 import { User, UserRole } from '../models/User';
-import { generateToken } from '../utils';
+import { generateToken, generatePasswordSchema } from '../utils';
+
+export const passwordValidator = generatePasswordSchema();
 
 class AuthController {
 	static login = async (req: Request, res: Response) => {
@@ -46,6 +47,13 @@ class AuthController {
 			return;
 		}
 
+		// ? Validate new password
+		const validationErrors: string[] = passwordValidator.validate(password, { list: true }) as string[];
+		if (validationErrors.length > 0) {
+			res.status(401).send({ validationErrors });
+			return;
+		}
+
 		// ? check if password matches confirmation password
 		if (password !== confirmPassword) {
 			res.status(400).send('passwords do not match');
@@ -61,7 +69,7 @@ class AuthController {
 		// ? validate user entry
 		const errors = await validate(user);
 		if (errors.length > 0) {
-			res.status(400).send(errors);
+			res.status(400).send({ errors });
 			return;
 		}
 
@@ -109,6 +117,14 @@ class AuthController {
 		const { oldPassword, newPassword } = req.body;
 		if (!(oldPassword && newPassword)) {
 			res.status(400).send();
+			return;
+		}
+
+		// ? Validate new password
+		const validationErrors: string[] = passwordValidator.validate(newPassword, { list: true }) as string[];
+		if (validationErrors.length > 0) {
+			res.status(401).send({ validationErrors });
+			return;
 		}
 
 		// ? Get user from the db
@@ -118,6 +134,7 @@ class AuthController {
 			user = await userRepository.findOneOrFail(id);
 		} catch (error) {
 			res.status(401).send();
+			return;
 		}
 
 		// ? check if old password is valid
@@ -126,11 +143,11 @@ class AuthController {
 			return;
 		}
 
-		// ? Validate password policy
+		// ? Validate account payload
 		user.password = newPassword;
 		const errors = await validate(user);
 		if (errors.length > 0) {
-			res.status(400).send(errors);
+			res.status(400).send({ errors });
 			return;
 		}
 
