@@ -1,4 +1,4 @@
-import { createSandbox, SinonSandbox, spy } from 'sinon';
+import { createSandbox, SinonSandbox, spy, fake } from 'sinon';
 import * as assert from 'assert';
 import * as request from 'supertest';
 import 'mocha';
@@ -32,9 +32,7 @@ describe('Accounts service Auth API', () => {
 
 		it('should deflect if user does not exist', async () => {
 			sandbox.stub(typeorm, 'getRepository').returns({
-				findOneOrFail: async () => {
-					throw new Error();
-				}
+				findOneOrFail: fake.throws(new Error('user does not exist'))
 			} as any);
 			await request(app.server)
 				.post('/api/auth/login')
@@ -43,33 +41,29 @@ describe('Accounts service Auth API', () => {
 		});
 
 		it('should deflect if user password is invalid', async () => {
-			const spyOnFind = spy(async () => mockUser);
+			mockUser.password = 'wrongpass';
+
 			sandbox
 				.stub(typeorm, 'getRepository')
-				.returns({ findOneOrFail: spyOnFind } as any);
+				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
-			sandbox.stub(mockUser, 'verifyPassword').returns(false);
 
 			await request(app.server)
 				.post('/api/auth/login')
 				.send(userCredentials)
 				.expect(401);
 
-			assert(spyOnFind.calledOnce);
 		});
 
 		it('should issue a signed jwt upon valid credentials', async () => {
-			const spyOnFind = spy(async () => mockUser);
 			sandbox
 				.stub(typeorm, 'getRepository')
-				.returns({ findOneOrFail: spyOnFind } as any);
+				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
 			await request(app.server)
 				.post('/api/auth/login')
 				.send(userCredentials)
 				.expect(200);
-
-			assert(spyOnFind.calledOnce);
 		});
 	});
 });

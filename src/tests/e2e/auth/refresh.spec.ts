@@ -1,4 +1,4 @@
-import { createSandbox, SinonSandbox } from 'sinon';
+import { createSandbox, SinonSandbox, fake } from 'sinon';
 import * as request from 'supertest';
 import 'mocha';
 
@@ -32,9 +32,7 @@ describe('Accounts service Auth API', () => {
 
 		it('should deflect if user does not exist', async () => {
 			sandbox.stub(typeorm, 'getRepository').returns({
-				findOneOrFail: async () => {
-					throw new Error();
-				}
+				findOneOrFail: fake.throws(new Error('user does not exist'))
 			} as any);
 
 			await request(app.server)
@@ -46,7 +44,7 @@ describe('Accounts service Auth API', () => {
 		it('should provide fresh JWT', async () => {
 			sandbox
 				.stub(typeorm, 'getRepository')
-				.returns({ findOneOrFail: async () => mockUser } as any);
+				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
 			await request(app.server)
 				.get('/api/auth/refresh')
