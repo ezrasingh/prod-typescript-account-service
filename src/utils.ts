@@ -89,7 +89,9 @@ export async function shutdownServer(
 	console.log('Disconnecting from database');
 	await db.close();
 
-	const httpTerminator: HttpTerminatorType = createHttpTerminator({ server: app.listener });
+	const httpTerminator: HttpTerminatorType = createHttpTerminator({
+		server: app.listener
+	});
 	// tslint:disable-next-line:no-console
 	console.log('Closing server');
 	await httpTerminator.terminate();
