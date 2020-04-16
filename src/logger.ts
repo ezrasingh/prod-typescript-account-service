@@ -12,8 +12,8 @@ class Logger {
 
 	public error(): RequestHandler {
 		return morgan(this.format, {
-			skip: function (_req: Request, res: Response) {
-				return res.statusCode < 400;
+			skip: function (req: Request, res: Response) {
+				return res.statusCode < 400 || req.app.locals.env === 'testing';
 			},
 			stream: process.stderr
 		});
@@ -21,8 +21,8 @@ class Logger {
 
 	public status(): RequestHandler {
 		return morgan(this.format, {
-			skip: function (_req: Request, res: Response) {
-				return res.statusCode >= 400;
+			skip: function (req: Request, res: Response) {
+				return res.statusCode >= 400 || req.app.locals.env === 'testing';
 			},
 			stream: process.stdout
 		});

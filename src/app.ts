@@ -24,6 +24,7 @@ class Application {
 	constructor(port: number) {
 		this.port = port;
 		this.server = express();
+		this.server.locals.env = process.env.NODE_ENV;
 		this.logger = new Logger(
 			':id :method :url :status :res[content-length] - :response-time ms'
 		);
@@ -56,10 +57,10 @@ class Application {
 		this.server.use(this.logger.status());
 	}
 
-	private healthCheckHandler(_req: Request, res: Response): RequestHandler {
+	private healthCheckHandler(req: Request, res: Response): RequestHandler {
 		res.json({
 			status: 'UP',
-			environment: process.env.NODE_ENV
+			environment: req.app.locals.env
 		});
 		return;
 	}

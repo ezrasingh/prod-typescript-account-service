@@ -8,19 +8,27 @@ import app from '../../../index';
 import { User, UserRole } from '../../../models/User';
 import { generateToken } from '../../../utils';
 
-describe('Accounts service Auth API', () => {
-	describe('Refresh Endpoint', async () => {
+describe('Accounts Refresh Token API', () => {
+	describe('GET /api/auth/refresh', async () => {
 		let sandbox: SinonSandbox;
 		let token: string;
 		let mockUser: User;
+		let requestHook: Function;
 
 		beforeEach(() => {
 			mockUser = new User();
-			mockUser.email = 'fake@user.com';
-			mockUser.password = 'letmein';
+			mockUser.email = 'user@app.com';
+			mockUser.password = 'userPASS123';
 			mockUser.role = UserRole.CUSTOMER;
+
 			token = generateToken(mockUser, app.server.locals.jwtSecret);
 			sandbox = createSandbox();
+
+			requestHook = (token?: string) => {
+				return request(app.server)
+					.get('/api/auth/refresh')
+					.set('Authorization', `Bearer ${token}`);
+			};
 		});
 
 		afterEach(() => {
@@ -28,7 +36,7 @@ describe('Accounts service Auth API', () => {
 		});
 
 		it('should deflect if JWT is missing from the header', async () => {
-			await request(app.server).get('/api/auth/refresh').expect(400);
+			await requestHook().expect(401);
 		});
 
 		it('should deflect if user does not exist', async () => {
@@ -36,10 +44,7 @@ describe('Accounts service Auth API', () => {
 				findOneOrFail: fake.throws('user does not exist')
 			} as any);
 
-			await request(app.server)
-				.get('/api/auth/refresh')
-				.set('Authorization', `Bearer ${token}`)
-				.expect(401);
+			await requestHook(token).expect(401);
 		});
 
 		it('should provide fresh JWT', async () => {
@@ -47,10 +52,7 @@ describe('Accounts service Auth API', () => {
 				.stub(typeorm, 'getRepository')
 				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
-			const res = await request(app.server)
-				.get('/api/auth/refresh')
-				.set('Authorization', `Bearer ${token}`)
-				.expect(200);
+			const res = await requestHook(token).expect(200);
 
 			chai.expect(res.body.token).to.be.a('string');
 		});

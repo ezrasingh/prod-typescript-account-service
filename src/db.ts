@@ -36,12 +36,17 @@ class Database {
 			} catch (error) {
 				retries -= 1;
 				// tslint:disable-next-line:no-console
-				console.log(
+				console.warn(
 					`Connection failed attempt: ${retries}/${this.maxConnectionRetries}`
 				);
 				await new Promise(res => {
 					setTimeout(res, this.reconnectionWaitTime * 1000);
 				});
+				if (retries === 0) {
+					// tslint:disable-next-line:no-console
+					console.error('Cannot load connections to the database: ', error);
+					process.exit(1);
+				}
 			}
 		}
 	};

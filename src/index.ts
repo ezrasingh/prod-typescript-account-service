@@ -9,6 +9,7 @@ dotenv.config();
 
 // ? initialize resources
 const app = new Application(+process.env.PORT);
+
 const db = new Database(
 	+process.env.DB_CONNECTION_RETRIES,
 	+process.env.DB_CONNECTION_WAIT

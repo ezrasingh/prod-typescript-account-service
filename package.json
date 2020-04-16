@@ -58,7 +58,7 @@
       "start": "node -r ts-node/register ./src/index.ts run",
       "start:dev": "nodemon",
       "test:watch": "nodemon --watch . --ext ts --exec \"mocha -r ts-node/register src/**/*.spec.ts\"",
-      "test": "mocha -r ts-node/register  src/**/*.spec.ts",
+      "test": "env NODE_ENV=testing mocha -r ts-node/register  src/**/*.spec.ts",
       "lint": "tslint -c tslint.json 'src/**/*.ts'",
       "lint:fix": "tslint -c tslint.json 'src/**/*.ts --fix",
       "build": "tsc",

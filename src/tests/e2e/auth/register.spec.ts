@@ -8,18 +8,24 @@ import * as typeorm from 'typeorm';
 import app from '../../../index';
 import { passwordValidator } from '../../../controllers/AuthController';
 
-describe('Accounts service Auth API', () => {
-	describe('Register Endpoint', async () => {
+describe('Accounts Registration API', () => {
+	describe('POST /api/auth/register', async () => {
 		let sandbox: SinonSandbox;
 		let userCredentials: any = {};
+		let requestHook: Function;
 
 		beforeEach(() => {
 			userCredentials = {
-				email: 'fake@user.com',
-				password: 'validPASS123',
-				confirmPassword: 'validPASS123'
+				email: 'user@app.com',
+				password: 'userPASS123',
+				confirmPassword: 'userPASS123'
 			};
+
 			sandbox = createSandbox();
+
+			requestHook = () => {
+				return request(app.server).post('/api/auth/register');
+			};
 		});
 
 		afterEach(() => {
@@ -27,36 +33,31 @@ describe('Accounts service Auth API', () => {
 		});
 
 		it('should deflect if missing body', async () => {
-			await request(app.server).post('/api/auth/register').expect(400);
+			await requestHook().expect(400);
 		});
 
 		it('should deflect if password does not meet validation', async () => {
+			const mockValidationErrors = ['min', 'uppercase', 'digits'];
+
 			sandbox
 				.stub(passwordValidator, 'validate')
-				.value(fake.returns(['min', 'uppercase', 'digits']));
+				.value(fake.returns(mockValidationErrors));
 
-			await request(app.server)
-				.post('/api/auth/register')
-				.send(userCredentials)
-				.expect(401);
+			const res = await requestHook().send(userCredentials).expect(401);
+
+			assert.deepEqual(res.body.validationErrors, mockValidationErrors);
 		});
 
 		it('should deflect if password confirmation is invalid', async () => {
 			userCredentials.confirmPassword = 'letmein';
 
-			await request(app.server)
-				.post('/api/auth/register')
-				.send(userCredentials)
-				.expect(400);
+			await requestHook().send(userCredentials).expect(400);
 		});
 
 		it('should deflect if user validation fails', async () => {
 			userCredentials.email = 'fakeuser';
 
-			await request(app.server)
-				.post('/api/auth/register')
-				.send(userCredentials)
-				.expect(400);
+			await requestHook().send(userCredentials).expect(400);
 		});
 
 		it('should deflect if account already exist', async () => {
@@ -66,10 +67,7 @@ describe('Accounts service Auth API', () => {
 				.stub(typeorm, 'getRepository')
 				.returns({ save: fake.throws('user already exist') } as any);
 
-			await request(app.server)
-				.post('/api/auth/register')
-				.send(userCredentials)
-				.expect(409);
+			await requestHook().send(userCredentials).expect(409);
 		});
 
 		it('should register user account', async () => {
@@ -77,10 +75,7 @@ describe('Accounts service Auth API', () => {
 
 			sandbox.stub(typeorm, 'getRepository').returns({ save: fake() } as any);
 
-			await request(app.server)
-				.post('/api/auth/register')
-				.send(userCredentials)
-				.expect(201);
+			await requestHook().send(userCredentials).expect(201);
 		});
 	});
 });
