@@ -7,10 +7,10 @@
 ### Summary
 
 - *`/api/auth`*
-    - **`GET`** *`/refresh`* - Refresh Token
-    - **`POST`** *`/login`* - Login a user
-		- **`POST`** *`/register`* - Register a user
-    - **`POST`** *`/change-password`* - Change user password
+	- **`GET`** *`/refresh`* - Refresh Token
+	- **`POST`** *`/login`* - Login a user
+	- **`POST`** *`/register`* - Register a user
+	- **`POST`** *`/change-password`* - Change user password
 - *`/api/user`*
     - **`GET`** *`/me`* - Get current user info
     - **`GET`** *`/`* - Get all accounts
