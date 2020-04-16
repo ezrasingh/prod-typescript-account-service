@@ -1,15 +1,18 @@
 import 'reflect-metadata';
-import { Connection } from 'typeorm';
 import * as dotenv from 'dotenv';
 
 import { startServer, shutdownServer } from './utils';
 import Application from './app';
+import Database from './db';
 
 dotenv.config();
 
 // ? initialize resources
-const app = new Application();
-let db: Connection;
+const app = new Application(+process.env.PORT);
+const db = new Database(
+	+process.env.DB_CONNECTION_RETRIES,
+	+process.env.DB_CONNECTION_WAIT
+);
 
 /** driver code to handle graceful start */
 async function run() {

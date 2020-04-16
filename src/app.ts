@@ -1,5 +1,10 @@
 import { Server } from 'http';
 import { Request, Response, RequestHandler } from 'express';
+import {
+	getConnectionManager,
+	getConnectionOptions,
+	ConnectionManager
+} from 'typeorm';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as helmet from 'helmet';
@@ -11,10 +16,13 @@ import routes from './routes';
 
 class Application {
 	public server: express.Application;
+	public connectionManager: ConnectionManager;
 	public listener: Server;
+	private port: number;
 	private logger: Logger;
 
-	constructor() {
+	constructor(port: number) {
+		this.port = port;
 		this.server = express();
 		this.logger = new Logger(
 			':id :method :url :status :res[content-length] - :response-time ms'
@@ -25,18 +33,11 @@ class Application {
 	}
 
 	/** attach server to port and begin listening for request */
-	public start(port: number): void {
-		try {
-			this.listener = this.server.listen(port, () => {
-				// tslint:disable-next-line:no-console
-				console.log(
-					`Server listening on port: ${this.listener.address().port}`
-				);
-			});
-		} catch (error) {
+	public start(): void {
+		this.listener = this.server.listen(this.port, () => {
 			// tslint:disable-next-line:no-console
-			console.log(error);
-		}
+			console.log(`Server listening on port: ${this.listener.address().port}`);
+		});
 	}
 
 	private generateJwtSecret(): void {

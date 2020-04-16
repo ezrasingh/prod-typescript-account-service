@@ -1,16 +1,10 @@
 import * as jwt from 'jsonwebtoken';
 import { createHttpTerminator } from 'http-terminator';
-import {
-	getConnectionManager,
-	getConnectionOptions,
-	Connection
-} from 'typeorm';
 import passwordValidator = require('password-validator');
 
 import { User } from './models/User';
 import Application from './app';
-
-const PORT: number = +process.env.PORT || 5000;
+import Database from './db';
 
 export function generatePasswordSchema(): passwordValidator {
 	let schema = new passwordValidator();
@@ -54,36 +48,36 @@ export function generateToken(user: User, signature: string): string {
 
 export async function startServer(
 	app: Application,
-	db: Connection
+	db: Database
 ): Promise<void> {
-	const connectionManager = getConnectionManager();
+	await db.establishConnections();
 
-	if (!connectionManager.has('default')) {
-		const connectionOptions = await getConnectionOptions();
-		connectionManager.create(connectionOptions);
-	}
-
+	// tslint:disable-next-line:no-console
+	console.log('Connecting to database...');
 	try {
-		db = connectionManager.get();
-		// tslint:disable-next-line:no-console
-		console.log('Connecting to database...');
-		await db.connect();
+		await db.loadConnections();
 		// tslint:disable-next-line:no-console
 		console.log('Connected OK!');
 	} catch (error) {
 		// tslint:disable-next-line:no-console
-		console.log(error);
+		console.error('Could not establish connection to database: ', error);
 		return;
 	}
 
 	// tslint:disable-next-line:no-console
-	console.log('Starting server');
-	app.start(PORT);
+	console.log('Starting server...');
+	try {
+		app.start();
+	} catch (error) {
+		// tslint:disable-next-line:no-console
+		console.error('Could not start application: ', error);
+		return;
+	}
 }
 
 export async function shutdownServer(
 	app: Application,
-	db: Connection
+	db: Database
 ): Promise<void> {
 	const httpTerminator = createHttpTerminator({
 		server: app.listener
@@ -92,10 +86,10 @@ export async function shutdownServer(
 	try {
 		// tslint:disable-next-line:no-console
 		console.log('Disconnecting from database');
-		await db.close();
+		await db.disconnect();
 	} catch (error) {
 		// tslint:disable-next-line:no-console
-		console.warn('Could not close the database connection');
+		console.warn('Could not close the database connection', error);
 	}
 
 	try {
@@ -104,7 +98,7 @@ export async function shutdownServer(
 		await httpTerminator.terminate();
 	} catch (error) {
 		// tslint:disable-next-line:no-console
-		console.warn('Could not close gracefully');
+		console.warn('Could not app close gracefully', error);
 	} finally {
 		process.exit(1);
 	}
