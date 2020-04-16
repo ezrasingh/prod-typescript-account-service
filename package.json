@@ -19,11 +19,15 @@
       "prettier": "2.0.4",
       "sinon": "^9.0.2",
       "supertest": "^4.0.2",
+      "ts-loader": "^7.0.0",
       "ts-node": "3.3.0",
       "tslint": "^6.1.1",
       "tslint-config-prettier": "^1.18.0",
       "tslint-plugin-prettier": "^2.3.0",
-      "typescript": "3.3.3333"
+      "typescript": "3.3.3333",
+      "webpack": "^4.42.1",
+      "webpack-cli": "^3.3.11",
+      "webpack-node-externals": "^1.7.2"
    },
    "dependencies": {
       "@types/bcryptjs": "^2.4.2",
@@ -50,7 +54,7 @@
       "typeorm": "0.2.24"
    },
    "scripts": {
-		 	"postinstall": "cp template.env .env",
+      "postinstall": "cp template.env .env",
       "clean:ports": "kill-port 5000",
       "start": "node -r ts-node/register ./src/index.ts run",
       "start:dev": "nodemon",
@@ -59,6 +63,7 @@
       "lint": "tslint -c tslint.json 'src/**/*.ts'",
       "lint:fix": "tslint -c tslint.json 'src/**/*.ts --fix",
       "build": "tsc",
+      "bundle": "webpack",
       "docker:host": "echo %DOCKER_HOST% || echo ${DOCKER_HOST}",
       "docker:dev:build": "docker-compose -f docker-compose.yml -f docker/docker-compose.dev.yml build",
       "docker:dev": "docker-compose -f docker-compose.yml -f docker/docker-compose.dev.yml up -d",
