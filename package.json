@@ -66,11 +66,15 @@
       "bundle": "webpack",
       "docker:host": "echo %DOCKER_HOST% || echo ${DOCKER_HOST}",
       "docker:dev:build": "docker-compose -f docker-compose.yml -f docker/docker-compose.dev.yml build",
+      "docker:dev:db": "docker-compose -f docker-compose.yml -f docker/docker-compose.dev.yml up",
+      "docker:dev:remove": "docker rm -v accounts_pg_dev",
       "docker:dev": "docker-compose -f docker-compose.yml -f docker/docker-compose.dev.yml up -d",
-      "docker:staging:build": "docker-compose -f docker-compose.yml -f docker/docker-compose.staging.yml build",
+      "docker:staging:build": "npm run bundle && docker-compose -f docker-compose.yml -f docker/docker-compose.staging.yml build",
       "docker:staging": "docker-compose -f docker-compose.yml -f docker/docker-compose.staging.yml up",
+      "docker:staging:remove": "docker rm -v accounts_pg_staging accounts_service_staging",
       "docker:down": "docker-compose down",
-      "dev": "npm run docker:dev && npm run start:dev"
+      "dev": "npm run docker:dev && npm run start:dev",
+      "staging": "npm run docker:staging:build && npm run docker:staging"
    },
    "nodemonConfig": {
       "ignore": [
