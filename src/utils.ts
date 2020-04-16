@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { createHttpTerminator, HttpTerminatorType } from 'http-terminator';
+import { createHttpTerminator } from 'http-terminator';
 import {
 	getConnectionManager,
 	getConnectionOptions,
@@ -85,14 +85,27 @@ export async function shutdownServer(
 	app: Application,
 	db: Connection
 ): Promise<void> {
-	// tslint:disable-next-line:no-console
-	console.log('Disconnecting from database');
-	await db.close();
-
-	const httpTerminator: HttpTerminatorType = createHttpTerminator({
+	const httpTerminator = createHttpTerminator({
 		server: app.listener
 	});
-	// tslint:disable-next-line:no-console
-	console.log('Closing server');
-	await httpTerminator.terminate();
+
+	try {
+		// tslint:disable-next-line:no-console
+		console.log('Disconnecting from database');
+		await db.close();
+	} catch (error) {
+		// tslint:disable-next-line:no-console
+		console.warn('Could not close the database connection');
+	}
+
+	try {
+		// tslint:disable-next-line:no-console
+		console.log('Closing server');
+		await httpTerminator.terminate();
+	} catch (error) {
+		// tslint:disable-next-line:no-console
+		console.warn('Could not close gracefully');
+	} finally {
+		process.exit(1);
+	}
 }
