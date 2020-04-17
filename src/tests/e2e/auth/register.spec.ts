@@ -5,6 +5,7 @@ import * as request from 'supertest';
 import 'mocha';
 
 import * as typeorm from 'typeorm';
+import * as classValidator from 'class-validator';
 import { app } from '../../../index';
 import { passwordValidator } from '../../../controllers/AuthController';
 
@@ -55,7 +56,7 @@ describe('Accounts Registration API', () => {
 		});
 
 		it('should deflect if user validation fails', async () => {
-			payload.email = 'fakeuser';
+			sandbox.replace(classValidator, 'validate', fake.resolves([,,]));
 
 			await requestHook().send(payload).expect(400);
 		});
