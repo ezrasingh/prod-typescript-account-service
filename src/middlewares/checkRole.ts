@@ -4,10 +4,10 @@ import { getRepository } from 'typeorm';
 import { User } from '../models/User';
 
 /**
- * Summary. This middleware will be called on private routes based on user roles.
+ * Summary. This middleware will be called on RBAC protected routes
  */
 export const checkRole = (roles: string[]) => {
-	return async (req: Request, res: Response, next: NextFunction) => {
+	return async (_req: Request, res: Response, next: NextFunction) => {
 		// ? Get the user ID from previous middleware
 		const id = res.locals.jwtPayload.userId;
 
@@ -17,10 +17,20 @@ export const checkRole = (roles: string[]) => {
 		try {
 			user = await userRepository.findOneOrFail(id);
 		} catch (error) {
+			// ! fail quietly to minimize
+			// ! surface area of a brute force attack
 			res.status(401).send();
+			return;
 		}
 
-		// ? Check if array of authorized roles includes the user's role
-		roles.includes(user.role) ? next() : res.status(401).send();
+		// ? Check if the user's role is included in allowed roles
+		if (!roles.includes(user.role)) {
+			// ! fail quietly to minimize
+			// ! surface area of a brute force attack
+			res.status(401).send();
+			return;
+		}
+
+		next();
 	};
 };

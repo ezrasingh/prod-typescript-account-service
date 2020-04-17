@@ -19,7 +19,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 		!req.headers.Authorization ||
 		!req.headers.Authorization.startsWith('Bearer ')
 	) {
-		res.status(400).send('Invalid authorization header');
+		res.status(400).send('invalid authorization header');
 		return;
 	}
 
@@ -28,7 +28,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 	try {
 		token = req.headers.Authorization.split('Bearer ')[1];
 	} catch (error) {
-		res.status(401).send('Authorization token is required');
+		res.status(401).send('authorization token is required');
 		return;
 	}
 
@@ -38,7 +38,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 		res.locals.jwtPayload = jwtPayload;
 	} catch (error) {
 		// ? If token is not valid, respond with 401 (unauthorized)
-		res.status(401).send('Invalid authorization token');
+		res.status(401).send('invalid authorization token');
 		return;
 	}
 
