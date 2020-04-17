@@ -46,7 +46,7 @@ class AuthController {
 	static register = async (req: Request, res: Response) => {
 		const { email, password, confirmPassword } = req.body;
 		// ? check if email and password are set
-		if (!(email && password)) {
+		if (!(email && password && confirmPassword)) {
 			res.status(400).send('missing user registration body');
 			return;
 		}
@@ -123,7 +123,7 @@ class AuthController {
 
 		// ? Get parameters from the body
 		const { oldPassword, newPassword, confirmPassword } = req.body;
-		if (!(oldPassword && newPassword)) {
+		if (!(oldPassword && newPassword && confirmPassword)) {
 			res.status(400).send();
 			return;
 		}
