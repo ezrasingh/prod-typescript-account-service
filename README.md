@@ -16,8 +16,8 @@
     - **`GET`** *`/`* - Get all accounts
     - **`GET`** *`/:id`* - Get a single account
     - **`POST`** *`/`* - Create an account
-    - **`PATCH`** *`/:id`* - Update an account *
-    - **`DELETE`** *`/:id`* - Delete an account *
+    - **`PATCH`** *`/:id`* - Update an account
+    - **`DELETE`** *`/:id`* - Delete an account
 - *`/health`* - Healthcheck endpoint
 
 ## Development
