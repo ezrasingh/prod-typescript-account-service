@@ -52,39 +52,29 @@ Run development environment
 
 `npm run docker:dev`
 
+Run only the development database (*enables **TTY***)
+
+`npm run docker:dev:db`
+
 ## Testing
+
+Run integration and unit test:
 
 `npm run test`
 
-Or more *stringently*:
+Start test in watch mode:
 
-`python -m pytest tests/`
+`npm run test:watch`
 
-Start application in development mode:
+## Linting
 
-`flask run`
+Run TSLint and Prettier to analyze source code
 
-### Migrations
+`npm run lint`
 
-### Emails
+Run TSLint and Prettier to correct syntax issues
 
-* [Mailtrap](https://mailtrap.io/) is preferred for **development** and **API testing**.
-
-Update the SMTP server parameters in [`.env`](.env) for *development* and *testing*.
-
-For *staging* and *production* feel free to use any SMTP service of your choice, just set the SMTP server parameters within their respective environment keys.
-
-* *Reference [`.env`](.env) for appropriate keys.*
-
-### API Testing
-
-* [Insomnia](https://insomnia.rest/) is required for API testing
-
-Import [`api.json`](api.json) and use the **Testing** environment.
-
-To generate validation tokens for emulating email based confirmation use:
-
-`flask generate --validation-token <email>`
+`npm run lint:fix`
 
 ### Running in Windows
 
@@ -96,13 +86,11 @@ Docker on windows utilizes a [local virtual machine](https://docs.docker.com/mac
 
 Use the IP address from the previous step to access your dev environments Postgres database. Configure `TYPEORM_URL` environment variable with the following template:
 
-`postgresql://pg:development@<docker-machine-ip>:5001/app/development`
+`postgresql://db:development@<docker-machine-ip>:5001/app/development`
 
 This is also the IP address used to access the service via the staging environment. Here is an example request with [curl](https://curl.haxx.se/docs/manpage.html):
 
 `curl https://<docker-machine-ip>:8080/health`
-
-## Deploy
 
 ## License
 
