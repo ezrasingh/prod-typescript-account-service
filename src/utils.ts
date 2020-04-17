@@ -1,5 +1,4 @@
 import * as jwt from 'jsonwebtoken';
-import { createHttpTerminator } from 'http-terminator';
 import passwordValidator = require('password-validator');
 
 import { User } from './models/User';
@@ -50,11 +49,10 @@ export async function startServer(
 	app: Application,
 	db: Database
 ): Promise<void> {
-	await db.establishConnections();
-
 	// tslint:disable-next-line:no-console
 	console.log('Connecting to database...');
 	try {
+		await db.establishConnections();
 		await db.loadConnections();
 		// tslint:disable-next-line:no-console
 		console.log('Connected OK!');
@@ -79,10 +77,6 @@ export async function shutdownServer(
 	app: Application,
 	db: Database
 ): Promise<void> {
-	const httpTerminator = createHttpTerminator({
-		server: app.listener
-	});
-
 	try {
 		// tslint:disable-next-line:no-console
 		console.log('Disconnecting from database');
@@ -95,7 +89,7 @@ export async function shutdownServer(
 	try {
 		// tslint:disable-next-line:no-console
 		console.log('Closing server');
-		await httpTerminator.terminate();
+		await app.stop();
 	} catch (error) {
 		// tslint:disable-next-line:no-console
 		console.warn('Could not app close gracefully', error);

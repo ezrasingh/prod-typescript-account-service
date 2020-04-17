@@ -1,10 +1,12 @@
 import { Server } from 'http';
 import { Request, Response, RequestHandler } from 'express';
+import { createHttpTerminator } from 'http-terminator';
 import {
 	getConnectionManager,
 	getConnectionOptions,
 	ConnectionManager
 } from 'typeorm';
+import * as os from 'os';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as helmet from 'helmet';
@@ -13,21 +15,24 @@ import * as requestId from 'express-request-id';
 
 import Logger from './logger';
 import routes from './routes';
+import { print } from 'util';
+
+type HttpTerminator = { terminate: () => Promise<void> };
 
 class Application {
 	public server: express.Application;
-	public connectionManager: ConnectionManager;
 	public listener: Server;
 	private port: number;
 	private logger: Logger;
+	private terminator: HttpTerminator;
 
 	constructor(port: number) {
 		this.port = port;
 		this.server = express();
-		this.server.locals.env = process.env.NODE_ENV;
 		this.logger = new Logger(
 			':id :method :url :status :res[content-length] - :response-time ms'
 		);
+		this.server.locals.env = process.env.NODE_ENV;
 		this.generateJwtSecret();
 		this.middleware();
 		this.routes();
@@ -39,13 +44,19 @@ class Application {
 			// tslint:disable-next-line:no-console
 			console.log(`Server listening on port: ${this.listener.address().port}`);
 		});
+		this.terminator = createHttpTerminator({ server: this.listener });
+	}
+
+	public stop(): Promise<void> {
+		return this.terminator.terminate();
 	}
 
 	private generateJwtSecret(): void {
-		const key: string[] = [...Array(process.env.SECRET_KEY_SIZE)].map(_i =>
-			Math.random().toString(36).substring(2)
-		);
-		this.server.locals.jwtSecret = key.join('');
+		const secretKey: string[] = [];
+		while (secretKey.length !== +process.env.SECRET_KEY_SIZE) {
+			secretKey.push(Math.random().toString(36).substring(2));
+		}
+		this.server.locals.jwtSecret = secretKey.join('');
 	}
 
 	private middleware(): void {
@@ -58,9 +69,10 @@ class Application {
 	}
 
 	private healthCheckHandler(req: Request, res: Response): RequestHandler {
-		res.json({
+		res.status(200).send({
 			status: 'UP',
-			environment: req.app.locals.env
+			environment: req.app.locals.env,
+			uptime: os.uptime()
 		});
 		return;
 	}

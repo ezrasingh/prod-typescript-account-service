@@ -16,10 +16,10 @@ class Database {
 	constructor(maxReconnectionRetries: number, reconnectionWaitTime: number) {
 		this.maxConnectionRetries = maxReconnectionRetries;
 		this.reconnectionWaitTime = reconnectionWaitTime;
-		this.connectionManager = getConnectionManager();
 	}
 
 	public establishConnections = async () => {
+		this.connectionManager = getConnectionManager();
 		if (!this.connectionManager.has('default')) {
 			this.connectionOptions = await getConnectionOptions();
 			this.connectionManager.create(this.connectionOptions);

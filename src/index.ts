@@ -8,9 +8,9 @@ import Database from './db';
 dotenv.config();
 
 // ? initialize resources
-const app = new Application(+process.env.PORT);
+export const app = new Application(+process.env.PORT);
 
-const db = new Database(
+export const db = new Database(
 	+process.env.DB_CONNECTION_RETRIES,
 	+process.env.DB_CONNECTION_WAIT
 );
@@ -25,12 +25,11 @@ async function shutdown() {
 	await shutdownServer(app, db);
 }
 
-if (process.argv.includes('run')) {
-	run();
+/** driver code to handle process lifecycle */
+if (process.env.NODE_ENV !== 'testing') {
+	if (process.argv.includes('start')) {
+		run();
+	}
+	process.on('SIGTERM', shutdown);
+	process.on('SIGINT', shutdown);
 }
-
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
-
-export default app;
-export { db };
