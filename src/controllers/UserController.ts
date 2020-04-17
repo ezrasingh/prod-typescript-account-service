@@ -5,7 +5,7 @@ import { validate } from 'class-validator';
 import { User } from '../models/User';
 
 class UserController {
-	static listAll = async (req: Request, res: Response) => {
+	static listAll = async (_req: Request, res: Response) => {
 		// ? Get users from db
 		const userRepository = getRepository(User);
 		let users: User[];
@@ -14,7 +14,7 @@ class UserController {
 			select: ['id', 'email', 'role']
 		});
 
-		res.send(users);
+		res.send({ users });
 	};
 
 	static getUser = async (req: Request, res: Response) => {
@@ -33,7 +33,7 @@ class UserController {
 			res.status(404).send('User not found');
 		}
 
-		res.send(user);
+		res.send({ user });
 	};
 
 	static createUser = async (req: Request, res: Response) => {
@@ -47,7 +47,7 @@ class UserController {
 		// ? validate user entry
 		const errors = await validate(user);
 		if (errors.length > 0) {
-			res.status(400).send(errors);
+			res.status(400).send({ errors });
 			return;
 		}
 
@@ -88,7 +88,7 @@ class UserController {
 		user.role = role;
 		const errors = await validate(user);
 		if (errors.length > 0) {
-			res.status(400).send(errors);
+			res.status(400).send({ errors });
 			return;
 		}
 
@@ -106,6 +106,10 @@ class UserController {
 	static deleteUser = async (req: Request, res: Response) => {
 		// ? Get ID from the url
 		const id: number = +req.params.url;
+
+		if (!id) {
+			res.status(400).send('no user selected');
+		}
 
 		// ? Search for user in db
 		const userRepository = getRepository(User);
@@ -139,7 +143,7 @@ class UserController {
 			res.status(404).send('Invalid user ID');
 		}
 
-		res.send(user);
+		res.send({ user });
 	};
 }
 
