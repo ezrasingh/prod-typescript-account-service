@@ -14,7 +14,7 @@ class UserController {
 			select: ['id', 'email', 'role']
 		});
 
-		res.send({ users });
+		res.status(200).send({ users });
 	};
 
 	static getUser = async (req: Request, res: Response) => {
@@ -31,14 +31,22 @@ class UserController {
 			});
 		} catch (error) {
 			res.status(404).send('User not found');
+			return;
 		}
 
-		res.send({ user });
+		res.status(200).send({ user });
 	};
 
 	static createUser = async (req: Request, res: Response) => {
 		// ? get parameters from the body
 		const { email, password, role } = req.body;
+
+		if (!(email && password && role)) {
+			res.status(400).send();
+			return;
+		}
+
+		// ? create user entity
 		const user = new User();
 		user.email = email;
 		user.password = password;
@@ -72,6 +80,10 @@ class UserController {
 
 		// ? Get parameters from body
 		const { email, role } = req.body;
+		if (!(email && role)) {
+			res.status(400).send();
+			return;
+		}
 
 		// ? Try to find user in db
 		const userRepository = getRepository(User);
@@ -107,10 +119,6 @@ class UserController {
 		// ? Get ID from the url
 		const id: number = +req.params.url;
 
-		if (!id) {
-			res.status(400).send('no user selected');
-		}
-
 		// ? Search for user in db
 		const userRepository = getRepository(User);
 		let user: User;
@@ -127,7 +135,7 @@ class UserController {
 		res.status(204).send();
 	};
 
-	static whoami = async (req: Request, res: Response) => {
+	static whoami = async (_req: Request, res: Response) => {
 		// ? retrieve user Id from JWT payload
 		const { userId } = res.locals.jwtPayload;
 
@@ -141,9 +149,10 @@ class UserController {
 			});
 		} catch (error) {
 			res.status(404).send('Invalid user ID');
+			return;
 		}
 
-		res.send({ user });
+		res.status(200).send({ user });
 	};
 }
 
