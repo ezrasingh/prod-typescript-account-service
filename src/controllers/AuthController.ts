@@ -22,20 +22,24 @@ class AuthController {
 		try {
 			user = await userRepository.findOneOrFail({ where: { email } });
 		} catch (error) {
+			// ! fail quietly to minimize
+			// ! surface area of a brute force attack
 			res.status(401).send();
 			return;
 		}
 
 		// ? check if password is valid
 		if (!user.verifyPassword(password)) {
+			// ! fail quietly to minimize
+			// ! surface area of a brute force attack
 			res.status(401).send();
 			return;
 		}
 
-		// ? sign JWT, valid for 1hr
+		// ? sign JWT
 		const token = generateToken(user, req.app.locals.jwtSecret);
 
-		// ? send token in response
+		// ? issue token in response
 		res.send({ token });
 	};
 
@@ -100,6 +104,8 @@ class AuthController {
 		try {
 			user = await userRepository.findOneOrFail(userId);
 		} catch (error) {
+			// ! fail quietly to minimize
+			// ! surface area of a brute force attack
 			res.status(401).send();
 			return;
 		}
@@ -143,12 +149,16 @@ class AuthController {
 		try {
 			user = await userRepository.findOneOrFail(id);
 		} catch (error) {
+			// ! fail quietly to minimize
+			// ! surface area of a brute force attack
 			res.status(401).send();
 			return;
 		}
 
 		// ? check if old password is valid
 		if (!user.verifyPassword(oldPassword)) {
+			// ! fail quietly to minimize
+			// ! surface area of a brute force attack
 			res.status(401).send();
 			return;
 		}
