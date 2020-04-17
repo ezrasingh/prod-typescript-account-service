@@ -134,9 +134,7 @@ describe('User Update API', () => {
 
 			const adminToken = tokenHook(mockAdmin);
 
-			await requestHook(mockUser.id, adminToken)
-				.send(payload)
-				.expect(409);
+			await requestHook(mockUser.id, adminToken).send(payload).expect(409);
 		});
 
 		it('should create a new user', async () => {
@@ -154,9 +152,7 @@ describe('User Update API', () => {
 
 			const adminToken = tokenHook(mockAdmin);
 
-			await requestHook(mockUser.id, adminToken)
-				.send(payload)
-				.expect(204);
+			await requestHook(mockUser.id, adminToken).send(payload).expect(204);
 		});
 	});
 });

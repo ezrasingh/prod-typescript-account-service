@@ -94,7 +94,10 @@ describe('User Delete API', () => {
 				.onFirstCall() // ? called by checkRole
 				.returns({ findOneOrFail: fake.resolves(mockAdmin) } as any)
 				.onSecondCall() // ? called by handler
-				.returns({ findOneOrFail: fake.resolves(mockUser), delete: fake()} as any);
+				.returns({
+					findOneOrFail: fake.resolves(mockUser),
+					delete: fake()
+				} as any);
 
 			const adminToken = tokenHook(mockAdmin);
 
