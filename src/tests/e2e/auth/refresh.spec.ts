@@ -4,25 +4,30 @@ import * as request from 'supertest';
 import 'mocha';
 
 import * as typeorm from 'typeorm';
-import app from '../../../index';
+import { app } from '../../../index';
 import { User, UserRole } from '../../../models/User';
 import { generateToken } from '../../../utils';
 
 describe('Accounts Refresh Token API', () => {
 	describe('GET /api/auth/refresh', async () => {
 		let sandbox: SinonSandbox;
-		let token: string;
 		let mockUser: User;
+		let tokenHook: Function;
 		let requestHook: Function;
 
-		beforeEach(() => {
+		before(() => {
 			mockUser = new User();
 			mockUser.email = 'user@app.com';
 			mockUser.password = 'userPASS123';
 			mockUser.role = UserRole.CUSTOMER;
+		});
 
-			token = generateToken(mockUser, app.server.locals.jwtSecret);
+		beforeEach(() => {
 			sandbox = createSandbox();
+
+			tokenHook = (user: User) => {
+				return generateToken(user, app.server.locals.jwtSecret);
+			};
 
 			requestHook = (token?: string) => {
 				return request(app.server)
@@ -44,7 +49,8 @@ describe('Accounts Refresh Token API', () => {
 				findOneOrFail: fake.throws('user does not exist')
 			} as any);
 
-			await requestHook(token).expect(401);
+			const userToken = tokenHook(mockUser);
+			await requestHook(userToken).expect(401);
 		});
 
 		it('should provide fresh JWT', async () => {
@@ -52,7 +58,8 @@ describe('Accounts Refresh Token API', () => {
 				.stub(typeorm, 'getRepository')
 				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
-			const res = await requestHook(token).expect(200);
+			const userToken = tokenHook(mockUser);
+			const res = await requestHook(userToken).expect(200);
 
 			chai.expect(res.body.token).to.be.a('string');
 		});

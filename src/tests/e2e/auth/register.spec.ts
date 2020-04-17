@@ -5,17 +5,17 @@ import * as request from 'supertest';
 import 'mocha';
 
 import * as typeorm from 'typeorm';
-import app from '../../../index';
+import { app } from '../../../index';
 import { passwordValidator } from '../../../controllers/AuthController';
 
 describe('Accounts Registration API', () => {
 	describe('POST /api/auth/register', async () => {
 		let sandbox: SinonSandbox;
-		let userCredentials: any = {};
+		let payload: { email: string; password: string; confirmPassword: string };
 		let requestHook: Function;
 
 		beforeEach(() => {
-			userCredentials = {
+			payload = {
 				email: 'user@app.com',
 				password: 'userPASS123',
 				confirmPassword: 'userPASS123'
@@ -43,21 +43,21 @@ describe('Accounts Registration API', () => {
 				.stub(passwordValidator, 'validate')
 				.value(fake.returns(mockValidationErrors));
 
-			const res = await requestHook().send(userCredentials).expect(401);
+			const res = await requestHook().send(payload).expect(401);
 
 			assert.deepEqual(res.body.validationErrors, mockValidationErrors);
 		});
 
 		it('should deflect if password confirmation is invalid', async () => {
-			userCredentials.confirmPassword = 'letmein';
+			payload.confirmPassword = 'letmein';
 
-			await requestHook().send(userCredentials).expect(400);
+			await requestHook().send(payload).expect(400);
 		});
 
 		it('should deflect if user validation fails', async () => {
-			userCredentials.email = 'fakeuser';
+			payload.email = 'fakeuser';
 
-			await requestHook().send(userCredentials).expect(400);
+			await requestHook().send(payload).expect(400);
 		});
 
 		it('should deflect if account already exist', async () => {
@@ -67,7 +67,7 @@ describe('Accounts Registration API', () => {
 				.stub(typeorm, 'getRepository')
 				.returns({ save: fake.throws('user already exist') } as any);
 
-			await requestHook().send(userCredentials).expect(409);
+			await requestHook().send(payload).expect(409);
 		});
 
 		it('should register user account', async () => {
@@ -75,7 +75,7 @@ describe('Accounts Registration API', () => {
 
 			sandbox.stub(typeorm, 'getRepository').returns({ save: fake() } as any);
 
-			await requestHook().send(userCredentials).expect(201);
+			await requestHook().send(payload).expect(201);
 		});
 	});
 });
