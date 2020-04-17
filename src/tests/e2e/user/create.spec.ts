@@ -1,5 +1,4 @@
 import { createSandbox, SinonSandbox, fake } from 'sinon';
-import * as assert from 'assert';
 import * as request from 'supertest';
 
 import 'mocha';

@@ -1,5 +1,5 @@
 import { createSandbox, SinonSandbox, fake } from 'sinon';
-import * as assert from 'assert';
+import * as chai from 'chai';
 import * as request from 'supertest';
 
 import 'mocha';
@@ -38,27 +38,28 @@ describe('Accounts Registration API', () => {
 		});
 
 		it('should deflect if password does not meet validation', async () => {
-			const mockValidationErrors = ['min', 'uppercase', 'digits'];
-
-			sandbox
-				.stub(passwordValidator, 'validate')
-				.value(fake.returns(mockValidationErrors));
+			sandbox.replace(passwordValidator, 'validate', fake.returns([, ,]));
 
 			const res = await requestHook().send(payload).expect(401);
 
-			assert.deepEqual(res.body.validationErrors, mockValidationErrors);
+			chai.expect(res.body.validationErrors).to.be.an('array');
 		});
 
 		it('should deflect if password confirmation is invalid', async () => {
-			payload.confirmPassword = 'letmein';
+			payload.confirmPassword = 'wrongpass';
+
+			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
 
 			await requestHook().send(payload).expect(400);
 		});
 
 		it('should deflect if user validation fails', async () => {
+			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
 			sandbox.replace(classValidator, 'validate', fake.resolves([, ,]));
 
-			await requestHook().send(payload).expect(400);
+			const res = await requestHook().send(payload).expect(400);
+
+			chai.expect(res.body.errors).to.be.an('array');
 		});
 
 		it('should deflect if account already exist', async () => {
