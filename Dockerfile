@@ -31,4 +31,4 @@ EXPOSE 80
 HEALTHCHECK --interval=12s --timeout=12s --start-period=30s \
  CMD node healthcheck.js
 
-CMD [ "pm2-runtime", "-i", "max", "app.bundle.js", "run" ]
+CMD [ "pm2-runtime", "-i", "max", "app.bundle.js", "start" ]
