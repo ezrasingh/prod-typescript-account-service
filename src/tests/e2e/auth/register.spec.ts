@@ -56,7 +56,7 @@ describe('Accounts Registration API', () => {
 		});
 
 		it('should deflect if user validation fails', async () => {
-			sandbox.replace(classValidator, 'validate', fake.resolves([,,]));
+			sandbox.replace(classValidator, 'validate', fake.resolves([, ,]));
 
 			await requestHook().send(payload).expect(400);
 		});
