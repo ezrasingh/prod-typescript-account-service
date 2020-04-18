@@ -63,9 +63,7 @@ export async function startServer(
 		// tslint:disable-next-line:no-console
 		console.log('Connected OK!');
 	} catch (error) {
-		// tslint:disable-next-line:no-console
-		console.error('Could not establish connection to database: ', error);
-		return;
+		throw new Error('Could not establish connection to database');
 	}
 
 	// tslint:disable-next-line:no-console
@@ -73,9 +71,7 @@ export async function startServer(
 	try {
 		app.start();
 	} catch (error) {
-		// tslint:disable-next-line:no-console
-		console.error('Could not start application: ', error);
-		return;
+		throw new Error('Could not start application');
 	}
 }
 

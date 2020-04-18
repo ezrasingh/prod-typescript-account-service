@@ -3,6 +3,7 @@ import * as chai from 'chai';
 import 'mocha';
 
 import * as jwt from 'jsonwebtoken';
+import * as typeorm from 'typeorm';
 import {
 	generatePasswordSchema,
 	generateToken,
@@ -10,6 +11,8 @@ import {
 	shutdownServer
 } from '../../utils';
 import { User } from '../../models/User';
+import Database from '../../db';
+import Application from '../../app';
 
 describe('Utilities library', () => {
 	describe('generatePasswordSchema', () => {
@@ -161,7 +164,76 @@ describe('Utilities library', () => {
 		});
 	});
 
-	describe('startServer', () => {});
+	describe('startServer', () => {
+		let sandbox: SinonSandbox;
+		let mockApp: Application;
+		let mockDb: Database;
+		let runtimeSpy;
+
+		beforeEach(() => {
+			runtimeSpy = spy();
+			sandbox = createSandbox();
+			sandbox
+				.stub(typeorm, 'getConnectionManager')
+				.returns({ has: fake.returns(true) } as any);
+
+			mockDb = new Database(1, 1);
+			mockApp = new Application(1);
+		});
+
+		afterEach(() => {
+			sandbox.restore();
+		});
+		it('should attempt to connect to the database', async () => {
+			const establishConnectionsSpy = fake();
+			const loadConnectionsSpy = fake();
+			sandbox.replace(mockDb, 'establishConnections', establishConnectionsSpy);
+			sandbox.replace(mockDb, 'loadConnections', loadConnectionsSpy);
+
+			await startServer(mockApp, mockDb);
+
+			chai.expect(establishConnectionsSpy.calledOnce).to.be.true;
+			chai.expect(loadConnectionsSpy.calledOnce).to.be.true;
+		});
+
+		it('should fail if connection to database fails', async () => {
+			sandbox.replace(
+				mockDb,
+				'establishConnections',
+				fake.throws('could not establish connection')
+			);
+			sandbox.replace(
+				mockDb,
+				'loadConnections',
+				fake.throws('could not load connection')
+			);
+			try {
+				await startServer(mockApp, mockDb);
+			} catch (error) {
+				chai.expect(error).to.be.an.instanceOf(Error);
+			}
+		});
+
+		it('should fail if application runtime fails', async () => {
+			sandbox.replace(mockDb, 'establishConnections', fake());
+			sandbox.replace(mockDb, 'loadConnections', fake());
+			sandbox.replace(mockApp, 'start', fake.throws('app runtime failed'));
+
+			try {
+				await startServer(mockApp, mockDb);
+			} catch (error) {
+				chai.expect(error).to.be.an.instanceOf(Error);
+			}
+		});
+
+		it('should initialize resources and begin runtime', async () => {
+			sandbox.replace(mockDb, 'establishConnections', fake());
+			sandbox.replace(mockDb, 'loadConnections', fake());
+			sandbox.replace(mockApp, 'start', fake());
+
+			await startServer(mockApp, mockDb);
+		});
+	});
 
 	describe('shutdownServer', () => {});
 });
