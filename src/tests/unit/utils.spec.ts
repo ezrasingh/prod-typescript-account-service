@@ -235,5 +235,40 @@ describe('Utilities library', () => {
 		});
 	});
 
-	describe('shutdownServer', () => {});
+	describe('shutdownServer', () => {
+		let sandbox: SinonSandbox;
+		let mockApp: Application;
+		let mockDb: Database;
+		let runtimeSpy;
+
+		beforeEach(() => {
+			runtimeSpy = spy();
+			sandbox = createSandbox();
+			sandbox
+				.stub(typeorm, 'getConnectionManager')
+				.returns({ has: fake.returns(true) } as any);
+
+			sandbox.stub(process, 'exit');
+
+			mockDb = new Database(1, 1);
+			mockApp = new Application(1);
+		});
+
+		afterEach(() => {
+			sandbox.restore();
+		});
+
+		it('should attempt to disconnect from the database', async () => {
+			const disconnectSpy = spy();
+			sandbox.replace(mockDb, 'disconnect', disconnectSpy);
+			await shutdownServer(mockApp, mockDb);
+			chai.expect(disconnectSpy.calledOnce).to.be.true;
+		})
+		it('should attempt to shutdown app', async () => {
+			const shutdownSpy = spy();
+			sandbox.replace(mockApp, 'stop', shutdownSpy);
+			await shutdownServer(mockApp, mockDb);
+			chai.expect(shutdownSpy.calledOnce).to.be.true;
+		})
+	});
 });
