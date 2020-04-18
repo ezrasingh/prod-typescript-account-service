@@ -1,19 +1,20 @@
-import { createSandbox, SinonSandbox, fake } from 'sinon';
+import { createSandbox, SinonSandbox, fake, spy } from 'sinon';
 import * as chai from 'chai';
 import 'mocha';
 
+import * as jwt from 'jsonwebtoken';
 import {
 	generatePasswordSchema,
 	generateToken,
 	startServer,
 	shutdownServer
 } from '../../utils';
+import { User } from '../../models/User';
 
 describe('Utilites library', () => {
 	describe('generatePasswordSchema', () => {
 		let sandbox: SinonSandbox;
 		let schemaHook: Function;
-		let password: string;
 
 		interface ShortCircuitConfig {
 			PASSWORD_MIN_LEN: number;
@@ -135,7 +136,30 @@ describe('Utilites library', () => {
 		});
 	});
 
-	describe('generateToken', () => {});
+	describe('generateToken', () => {
+		const signature = 'mock-signature';
+		let user: User;
+
+		beforeEach(() => {
+			user = new User();
+			user.id = 1;
+			user.email = 'user@app.com';
+		});
+		it('should return signed JWT', () => {
+			const token = generateToken(user, signature);
+			const payload = jwt.verify(token, signature);
+			chai.expect(payload['userId']).to.be.eql(user.id);
+			chai.expect(payload['email']).to.be.eql(user.email);
+		});
+		it('should fail if signature is self signed', () => {
+			const token = generateToken(user, 'self-signed-signature');
+			try {
+				jwt.verify(token, signature);
+			} catch (error) {
+				chai.expect(error).is.an.instanceOf(jwt.JsonWebTokenError);
+			}
+		});
+	});
 
 	describe('startServer', () => {});
 
