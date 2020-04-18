@@ -8,28 +8,34 @@ import Database from './db';
 export function generatePasswordSchema(): passwordValidator {
 	let schema = new passwordValidator();
 
-	if (process.env.PASSWORD_MIN_LEN) {
-		schema = schema.is().min(+process.env.PASSWORD_MIN_LEN);
+	if (+process.env.PASSWORD_MIN_LEN) {
+		schema.is().min(+process.env.PASSWORD_MIN_LEN);
 	}
 
-	if (process.env.PASSWORD_MAX_LEN) {
-		schema = schema.is().max(+process.env.PASSWORD_MAX_LEN);
+	if (+process.env.PASSWORD_MAX_LEN) {
+		schema.is().max(+process.env.PASSWORD_MAX_LEN);
 	}
 
-	if (process.env.PASSWORD_HAS_UPPERCASE) {
-		schema = schema.has().uppercase();
+	if (process.env.PASSWORD_HAS_UPPERCASE === 'true') {
+		schema.has().uppercase();
+	} else {
+		schema.has().not().uppercase();
 	}
 
-	if (process.env.PASSWORD_HAS_LOWERCASE) {
-		schema = schema.has().lowercase();
+	if (process.env.PASSWORD_HAS_LOWERCASE === 'true') {
+		schema.has().lowercase();
+	} else {
+		schema.has().not().lowercase();
 	}
 
-	if (process.env.PASSWORD_HAS_DIGITS) {
-		schema = schema.has().digits();
+	if (process.env.PASSWORD_HAS_DIGITS === 'true') {
+		schema.has().digits();
 	}
 
-	if (!process.env.PASSWORD_HAS_SPACES) {
-		schema = schema.has().not().spaces();
+	if (process.env.PASSWORD_HAS_SPACES === 'true') {
+		schema.has().spaces();
+	} else {
+		schema.has().not().spaces();
 	}
 
 	return schema;
