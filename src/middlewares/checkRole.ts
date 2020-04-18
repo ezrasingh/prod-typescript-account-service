@@ -6,7 +6,7 @@ import { User } from '../models/User';
 /**
  * Summary. This middleware will be called on RBAC protected routes
  */
-export const checkRole = (roles: string[]) => {
+const checkRole = (roles: string[]) => {
 	return async (_req: Request, res: Response, next: NextFunction) => {
 		// ? Get the user ID from previous middleware
 		const id = res.locals.jwtPayload.userId;
@@ -34,3 +34,5 @@ export const checkRole = (roles: string[]) => {
 		next();
 	};
 };
+
+export default checkRole;

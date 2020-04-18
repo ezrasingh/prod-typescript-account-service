@@ -9,7 +9,7 @@ import * as jwt from 'jsonwebtoken';
  *  If the token is valid, call the next function that will be handled by the controller.
  *  Otherwise, send a response with the 401 (unauthorized) status code.
  */
-export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
+const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 	// ? Handle case-insensitive headers
 	if (req.headers.authorization) {
 		req.headers.Authorization = req.headers.authorization as string;
@@ -45,3 +45,5 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 	// ? Call the next middleware or controller
 	next();
 };
+
+export default checkJwt;
