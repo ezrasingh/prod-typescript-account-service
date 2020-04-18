@@ -3,13 +3,15 @@ import * as request from 'supertest';
 import 'mocha';
 
 import * as express from 'express';
+import * as typeorm from 'typeorm';
 import { checkJwt, checkRole } from '../../middlewares';
 import { generateToken } from '../../utils';
-import { User } from '../../models/User';
+import { User, UserRole } from '../../models/User';
 
 describe('Middlewares library', () => {
 	let mockApp: express.Application;
 	let testRouter: express.Router;
+
 	const mockHandler = (_req: express.Request, res: express.Response) => {
 		res.status(200).send();
 	};
@@ -74,6 +76,71 @@ describe('Middlewares library', () => {
 			await requestHook()
 				.set('Authorization', `Bearer ${mockToken}`)
 				.expect(200);
+		});
+	});
+
+	describe('checkRole', () => {
+		let requestHook: Function;
+		let mockToken: string;
+		let mockUser: User;
+		let sandbox: SinonSandbox;
+
+		before(() => {
+			mockApp = express();
+			testRouter = express.Router();
+			mockApp.locals.jwtSecret = 'secret-key';
+		});
+
+		beforeEach(() => {
+			mockUser = new User();
+			mockUser.id = 123;
+			mockUser.email = 'editor@app.com';
+			mockUser.role = UserRole.EDITOR;
+
+			mockToken = generateToken(mockUser, mockApp.locals.jwtSecret);
+
+			testRouter.get(
+				'/test/checkRole/staff',
+				[checkJwt, checkRole([UserRole.STAFF])],
+				mockHandler
+			);
+			testRouter.get(
+				'/test/checkRole/editor',
+				[checkJwt, checkRole([UserRole.EDITOR])],
+				mockHandler
+			);
+			mockApp.use(testRouter);
+
+			sandbox = createSandbox();
+			requestHook = (role: string) => {
+				return request(mockApp)
+					.get(`/test/checkRole/${role}`)
+					.set('Authorization', `Bearer ${mockToken}`);
+			};
+		});
+
+		afterEach(() => {
+			sandbox.restore();
+		});
+
+		it('should deflect if token is stale', async () => {
+			sandbox
+				.stub(typeorm, 'getRepository')
+				.returns({ findOneOrFail: fake.throws('user doest not exist') } as any);
+
+			await requestHook('editor').expect(401);
+		});
+
+		it('should permit request if roles are included', async () => {
+			sandbox
+				.stub(typeorm, 'getRepository')
+				.onFirstCall()
+				.returns({ findOneOrFail: fake.resolves(mockUser) } as any)
+				.onSecondCall()
+				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
+
+			await requestHook('staff').expect(401);
+			await requestHook('editor').expect(200);
 		});
 	});
 });
