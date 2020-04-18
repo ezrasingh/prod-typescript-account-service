@@ -11,7 +11,7 @@ import {
 } from '../../utils';
 import { User } from '../../models/User';
 
-describe('Utilites library', () => {
+describe('Utilities library', () => {
 	describe('generatePasswordSchema', () => {
 		let sandbox: SinonSandbox;
 		let schemaHook: Function;
