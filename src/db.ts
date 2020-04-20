@@ -1,8 +1,4 @@
-import {
-	Connection,
-	ConnectionManager,
-	getConnectionManager,
-} from 'typeorm';
+import { Connection, ConnectionManager, getConnectionManager } from 'typeorm';
 
 class Database {
 	public connection: Connection;
