@@ -1,44 +1,19 @@
 import * as jwt from 'jsonwebtoken';
-import passwordValidator = require('password-validator');
+import ValidatePassword = require('validate-password');
 
 import { User } from './models/User';
 import Application from './app';
 import Database from './db';
 
-export function generatePasswordSchema(): passwordValidator {
-	let schema = new passwordValidator();
-
-	if (+process.env.PASSWORD_MIN_LEN) {
-		schema.is().min(+process.env.PASSWORD_MIN_LEN);
-	}
-
-	if (+process.env.PASSWORD_MAX_LEN) {
-		schema.is().max(+process.env.PASSWORD_MAX_LEN);
-	}
-
-	if (process.env.PASSWORD_HAS_UPPERCASE === 'true') {
-		schema.has().uppercase();
-	} else {
-		schema.has().not().uppercase();
-	}
-
-	if (process.env.PASSWORD_HAS_LOWERCASE === 'true') {
-		schema.has().lowercase();
-	} else {
-		schema.has().not().lowercase();
-	}
-
-	if (process.env.PASSWORD_HAS_DIGITS === 'true') {
-		schema.has().digits();
-	}
-
-	if (process.env.PASSWORD_HAS_SPACES === 'true') {
-		schema.has().spaces();
-	} else {
-		schema.has().not().spaces();
-	}
-
-	return schema;
+export function generatePasswordSchema(): ValidatePassword {
+	return new ValidatePassword({
+		enforce: {
+			lowercase: process.env.PASSWORD_ENFORCE_LOWERCASE === 'true',
+			uppercase: process.env.PASSWORD_ENFORCE_UPPERCASE === 'true',
+			specialCharacters: process.env.PASSWORD_ENFORCE_SYMBOLS === 'true',
+			numbers: process.env.PASSWORD_ENFORCE_NUMBERS === 'true'
+		}
+	});
 }
 
 export function generateToken(user: User, signature: string): string {
@@ -58,11 +33,11 @@ export async function startServer(
 	// tslint:disable-next-line:no-console
 	console.log('Connecting to database...');
 	try {
-		await db.establishConnections();
-		await db.loadConnections();
+		await db.connect();
 		// tslint:disable-next-line:no-console
 		console.log('Connected OK!');
 	} catch (error) {
+		// console.log(error);
 		throw new Error('Could not establish connection to database');
 	}
 
@@ -71,31 +46,8 @@ export async function startServer(
 	try {
 		app.start();
 	} catch (error) {
+		// console.log(error);
+
 		throw new Error('Could not start application');
-	}
-}
-
-export async function shutdownServer(
-	app: Application,
-	db: Database
-): Promise<void> {
-	try {
-		// tslint:disable-next-line:no-console
-		console.log('Disconnecting from database');
-		await db.disconnect();
-	} catch (error) {
-		// tslint:disable-next-line:no-console
-		console.warn('Could not close the database connection', error);
-	}
-
-	try {
-		// tslint:disable-next-line:no-console
-		console.log('Closing server');
-		await app.stop();
-	} catch (error) {
-		// tslint:disable-next-line:no-console
-		console.warn('Could not app close gracefully', error);
-	} finally {
-		process.exit(1);
 	}
 }
