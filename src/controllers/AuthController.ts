@@ -36,8 +36,9 @@ class AuthController {
 			return;
 		}
 
-		// ? update last login time
+		// ? update login metrics
 		user.lastLogin = new Date();
+		user.loginCount += 1;
 		userRepository.save(user);
 
 		// ? sign JWT
