@@ -38,23 +38,30 @@ describe('Accounts Registration API', () => {
 		});
 
 		it('should deflect if password does not meet validation', async () => {
-			sandbox.replace(passwordValidator, 'validate', fake.returns([, ,]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: false, validationMessage: 'error' });
 
 			const res = await requestHook().send(payload).expect(401);
 
-			chai.expect(res.body.validationErrors).to.be.an('array');
+			chai.expect(res.body.message).to.be.an('string');
 		});
 
 		it('should deflect if password confirmation is invalid', async () => {
 			payload.confirmPassword = 'wrongpass';
 
-			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
 
 			await requestHook().send(payload).expect(400);
 		});
 
 		it('should deflect if user validation fails', async () => {
-			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
+
 			sandbox.replace(classValidator, 'validate', fake.resolves([, ,]));
 
 			const res = await requestHook().send(payload).expect(400);
@@ -63,7 +70,9 @@ describe('Accounts Registration API', () => {
 		});
 
 		it('should deflect if account already exist', async () => {
-			sandbox.stub(passwordValidator, 'validate').value(fake.resolves([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
 
 			sandbox
 				.stub(typeorm, 'getRepository')
@@ -73,7 +82,9 @@ describe('Accounts Registration API', () => {
 		});
 
 		it('should register user account', async () => {
-			sandbox.stub(passwordValidator, 'validate').value(fake.resolves([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
 
 			sandbox.stub(typeorm, 'getRepository').returns({ save: fake() } as any);
 

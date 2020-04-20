@@ -52,11 +52,9 @@ class AuthController {
 		}
 
 		// ? Validate new password
-		const validationErrors: string[] = passwordValidator.validate(password, {
-			list: true
-		}) as string[];
-		if (validationErrors.length > 0) {
-			res.status(401).send({ validationErrors });
+		const passwordValidation = passwordValidator.checkPassword(password);
+		if (!passwordValidation.isValid) {
+			res.status(401).send({ message: passwordValidation.validationMessage });
 			return;
 		}
 
@@ -129,11 +127,9 @@ class AuthController {
 		}
 
 		// ? Validate new password
-		const validationErrors: string[] = passwordValidator.validate(newPassword, {
-			list: true
-		}) as string[];
-		if (validationErrors.length > 0) {
-			res.status(401).send({ validationErrors });
+		const passwordValidation = passwordValidator.checkPassword(newPassword);
+		if (!passwordValidation.isValid) {
+			res.status(401).send({ message: passwordValidation.validationMessage });
 			return;
 		}
 

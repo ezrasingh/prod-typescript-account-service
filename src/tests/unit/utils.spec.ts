@@ -20,12 +20,10 @@ describe('Utilities library', () => {
 		let schemaHook: Function;
 
 		interface ShortCircuitConfig {
-			PASSWORD_MIN_LEN: number;
-			PASSWORD_MAX_LEN: number;
-			PASSWORD_HAS_UPPERCASE: boolean;
-			PASSWORD_HAS_LOWERCASE: boolean;
-			PASSWORD_HAS_DIGITS: boolean;
-			PASSWORD_HAS_SPACES: boolean;
+			PASSWORD_ENFORCE_UPPERCASE: string;
+			PASSWORD_ENFORCE_LOWERCASE: string;
+			PASSWORD_ENFORCE_NUMBERS: string;
+			PASSWORD_ENFORCE_SYMBOLS: string;
 		}
 
 		beforeEach(() => {
@@ -34,7 +32,7 @@ describe('Utilities library', () => {
 			schemaHook = (shortCircuit: ShortCircuitConfig) => {
 				// ? stub environment variables with a short circuit value
 				for (let [key, val] of Object.entries(shortCircuit)) {
-					sandbox.stub(process.env, key).value(val as string);
+					sandbox.stub(process.env, key).value(val);
 				}
 				return generatePasswordSchema();
 			};
@@ -44,98 +42,60 @@ describe('Utilities library', () => {
 			sandbox.restore();
 		});
 
-		it('should validate against minimum length', () => {
+		it('should enforce uppercase', () => {
 			const schema = schemaHook({
-				PASSWORD_MIN_LEN: '10',
-				PASSWORD_MAX_LEN: '15',
-				PASSWORD_HAS_LOWERCASE: 'true',
-				PASSWORD_HAS_UPPERCASE: 'true',
-				PASSWORD_HAS_DIGITS: 'false',
-				PASSWORD_HAS_SPACES: 'false'
+				PASSWORD_ENFORCE_UPPERCASE: 'true',
+				PASSWORD_ENFORCE_LOWERCASE: 'false',
+				PASSWORD_ENFORCE_NUMBERS: 'false',
+				PASSWORD_ENFORCE_SYMBOLS: 'false'
 			});
-			console.log(process.env.PASSWORD_HAS_SPACES);
-			chai.expect(schema.validate('testPASS')).to.be.false;
-			chai.expect(schema.validate('testPASSWORD')).to.be.true;
-			chai.expect(schema.validate('testPASS123')).to.be.true;
+
+			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.true;
+			chai.expect(schema.checkPassword('testpass').isValid).to.be.false;
+			chai.expect(schema.checkPassword('12345678').isValid).to.be.false;
+			chai.expect(schema.checkPassword('!@#$%^&*').isValid).to.be.false;
 		});
 
-		it('should validate against maximum length', () => {
+		it('should enforce lowercase', () => {
 			const schema = schemaHook({
-				PASSWORD_MIN_LEN: '5',
-				PASSWORD_MAX_LEN: '10',
-				PASSWORD_HAS_LOWERCASE: 'true',
-				PASSWORD_HAS_UPPERCASE: 'true',
-				PASSWORD_HAS_DIGITS: 'false',
-				PASSWORD_HAS_SPACES: 'false'
+				PASSWORD_ENFORCE_UPPERCASE: 'false',
+				PASSWORD_ENFORCE_LOWERCASE: 'true',
+				PASSWORD_ENFORCE_NUMBERS: 'false',
+				PASSWORD_ENFORCE_SYMBOLS: 'false'
 			});
-			chai.expect(schema.validate('testPASSWORD')).to.be.false;
-			chai.expect(schema.validate('testPASSWO')).to.be.true;
-			chai.expect(schema.validate('testPASSW')).to.be.true;
+
+			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.false;
+			chai.expect(schema.checkPassword('testpass').isValid).to.be.true;
+			chai.expect(schema.checkPassword('12345678').isValid).to.be.false;
+			chai.expect(schema.checkPassword('!@#$%^&*').isValid).to.be.false;
+			});
+
+		it('should enforce numbers', () => {
+			const schema = schemaHook({
+				PASSWORD_ENFORCE_UPPERCASE: 'false',
+				PASSWORD_ENFORCE_LOWERCASE: 'false',
+				PASSWORD_ENFORCE_NUMBERS: 'true',
+				PASSWORD_ENFORCE_SYMBOLS: 'false'
+			});
+
+			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.false;
+			chai.expect(schema.checkPassword('testpass').isValid).to.be.false;
+			chai.expect(schema.checkPassword('12345678').isValid).to.be.true;
+			chai.expect(schema.checkPassword('!@#$%^&*').isValid).to.be.false;
+			});
+
+		it('should enforce symbols', () => {
+			const schema = schemaHook({
+				PASSWORD_ENFORCE_UPPERCASE: 'false',
+				PASSWORD_ENFORCE_LOWERCASE: 'false',
+				PASSWORD_ENFORCE_NUMBERS: 'false',
+				PASSWORD_ENFORCE_SYMBOLS: 'true'
 		});
 
-		it('should validate against uppercase', () => {
-			const schema = schemaHook({
-				PASSWORD_MIN_LEN: '5',
-				PASSWORD_MAX_LEN: '10',
-				PASSWORD_HAS_UPPERCASE: 'true',
-				PASSWORD_HAS_LOWERCASE: 'false',
-				PASSWORD_HAS_DIGITS: 'false',
-				PASSWORD_HAS_SPACES: 'false'
-			});
-			chai.expect(schema.validate('testpass')).to.be.false;
-			chai.expect(schema.validate('TESTPASS')).to.be.true;
-		});
-
-		it('should validate against lowercase', () => {
-			const schema = schemaHook({
-				PASSWORD_MIN_LEN: '5',
-				PASSWORD_MAX_LEN: '10',
-				PASSWORD_HAS_UPPERCASE: 'false',
-				PASSWORD_HAS_LOWERCASE: 'true',
-				PASSWORD_HAS_DIGITS: 'false',
-				PASSWORD_HAS_SPACES: 'false'
-			});
-			chai.expect(schema.validate('testpass')).to.be.true;
-			chai.expect(schema.validate('TESTPASS')).to.be.false;
-		});
-
-		it('should validate against having digits', () => {
-			const schema = schemaHook({
-				PASSWORD_MIN_LEN: '5',
-				PASSWORD_MAX_LEN: '20',
-				PASSWORD_HAS_UPPERCASE: 'true',
-				PASSWORD_HAS_LOWERCASE: 'false',
-				PASSWORD_HAS_DIGITS: 'true',
-				PASSWORD_HAS_SPACES: 'false'
-			});
-			chai.expect(schema.validate('testpassword')).to.be.false;
-			chai.expect(schema.validate('TESTPASS123')).to.be.true;
-		});
-
-		it('should validate against not including spaces', () => {
-			const schema = schemaHook({
-				PASSWORD_MIN_LEN: '5',
-				PASSWORD_MAX_LEN: '10',
-				PASSWORD_HAS_UPPERCASE: 'true',
-				PASSWORD_HAS_LOWERCASE: 'false',
-				PASSWORD_HAS_DIGITS: 'false',
-				PASSWORD_HAS_SPACES: 'false'
-			});
-			chai.expect(schema.validate('test pass')).to.be.false;
-			chai.expect(schema.validate('TESTPASS')).to.be.true;
-		});
-
-		it('should validate against including spaces', () => {
-			const schema = schemaHook({
-				PASSWORD_MIN_LEN: '5',
-				PASSWORD_MAX_LEN: '10',
-				PASSWORD_HAS_UPPERCASE: 'true',
-				PASSWORD_HAS_LOWERCASE: 'false',
-				PASSWORD_HAS_DIGITS: 'false',
-				PASSWORD_HAS_SPACES: 'true'
-			});
-			chai.expect(schema.validate('testpass')).to.be.false;
-			chai.expect(schema.validate('TEST PASS')).to.be.true;
+			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.false;
+			chai.expect(schema.checkPassword('testpass').isValid).to.be.false;
+			chai.expect(schema.checkPassword('12345678').isValid).to.be.false;
+			chai.expect(schema.checkPassword('!@#$%^&*').isValid).to.be.true;
 		});
 	});
 

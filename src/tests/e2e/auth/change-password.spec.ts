@@ -65,25 +65,32 @@ describe('Accounts Change Password API', () => {
 		});
 
 		it('should deflect if new password fails validation', async () => {
-			sandbox.replace(passwordValidator, 'validate', fake.returns([, ,]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: false, validationMessage: 'error' });
 
 			const userToken = tokenHook(mockUser);
 			const res = await requestHook(userToken).send(payload).expect(401);
 
-			chai.expect(res.body.validationErrors).to.be.an('array');
+			chai.expect(res.body.message).to.be.an('string');
 		});
 
 		it('should deflect if new password fails confirmation', async () => {
 			payload.confirmPassword = 'notmypass';
 
-			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
 
 			const userToken = tokenHook(mockUser);
 			await requestHook(userToken).send(payload).expect(400);
 		});
 
 		it('should deflect if user does not exist', async () => {
-			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
+
 			sandbox.stub(typeorm, 'getRepository').returns({
 				findOneOrFail: fake.throws('user does not exist')
 			} as any);
@@ -94,7 +101,9 @@ describe('Accounts Change Password API', () => {
 
 		it('should deflect if old password fails verification', async () => {
 			payload.oldPassword = 'wrongpass';
-			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
 
 			sandbox
 				.stub(typeorm, 'getRepository')
@@ -105,7 +114,9 @@ describe('Accounts Change Password API', () => {
 		});
 
 		it('should deflect if user validation fails', async () => {
-			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
 
 			sandbox
 				.stub(typeorm, 'getRepository')
@@ -118,7 +129,9 @@ describe('Accounts Change Password API', () => {
 		});
 
 		it("should update user's password", async () => {
-			sandbox.replace(passwordValidator, 'validate', fake.returns([]));
+			sandbox
+				.stub(passwordValidator, 'checkPassword')
+				.returns({ isValid: true });
 
 			sandbox.stub(typeorm, 'getRepository').returns({
 				findOneOrFail: fake.resolves(mockUser),
