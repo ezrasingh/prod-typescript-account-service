@@ -132,6 +132,7 @@ describe('Utilities library', () => {
 			sandbox = createSandbox();
 			sandbox
 				.replace(typeorm, 'getConnectionManager', fake());
+			sandbox.replace(console, 'log', fake());
 
 			mockDb = new Database(1, 1, 'db://', []);
 			mockApp = new Application(1);
