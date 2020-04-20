@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+ pg:
+  container_name: accounts_pg_dev
+  ports:
+   - "5001:5432"
+  environment:
+    POSTGRES_DB: app/development
+    POSTGRES_PASSWORD: development
+  volumes:
+   - pgdata:/var/lib/postgresql/data
+   - pgconf:/etc/postgresql
+   - pglog:/var/log/postgresql
+
+volumes:
+ pgdata:
+  driver: local
+ pgconf:
+  driver: local
+ pglog:
+  driver: local
