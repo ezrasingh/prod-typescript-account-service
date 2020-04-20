@@ -1,0 +1,31 @@
+version: '3'
+
+volumes:
+  pgdata:
+    driver: local
+  pgconf:
+    driver: local
+  pglogs:
+    driver: local
+
+services:
+  pg:
+    build:
+      context: ./docker/db/pgmaster
+      dockerfile: Dockerfile
+    environment:
+      PG_POOL_USER: replication
+      PG_POOL_PASSWORD: default
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - pgconf:/etc/postgresql
+      - pglogs:/var/log/postgresql
+
+  pgpool:
+    build:
+      context: ./docker/db/pgreplica
+      dockerfile: Dockerfile
+    environment:
+      PG_MASTER_HOST: pg
+      PG_POOL_USER: replication
+      PG_POOL_PASSWORD: default
