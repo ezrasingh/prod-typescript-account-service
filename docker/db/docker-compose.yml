@@ -8,14 +8,20 @@ volumes:
   pglogs:
     driver: local
 
+networks:
+  cluster-tier:
+
 services:
   pg:
     build:
       context: ./docker/db/pgmaster
       dockerfile: Dockerfile
+    networks:
+      - cluster-tier
     environment:
       PG_POOL_USER: replication
       PG_POOL_PASSWORD: default
+      PG_POOL_HOST: pgpool
     volumes:
       - pgdata:/var/lib/postgresql/data
       - pgconf:/etc/postgresql
@@ -25,7 +31,10 @@ services:
     build:
       context: ./docker/db/pgreplica
       dockerfile: Dockerfile
+    networks:
+      - cluster-tier
     environment:
       PG_MASTER_HOST: pg
       PG_POOL_USER: replication
       PG_POOL_PASSWORD: default
+      PG_MASTER_PORT: 5432
