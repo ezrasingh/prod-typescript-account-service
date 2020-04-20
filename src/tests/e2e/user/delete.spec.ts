@@ -72,7 +72,9 @@ describe('User Delete API', () => {
 
 			const anonToken = tokenHook(anonUser);
 
-			const res = await requestHook(mockUser.id, anonToken).send(payload).expect(401);
+			const res = await requestHook(mockUser.id, anonToken)
+				.send(payload)
+				.expect(401);
 			chai.expect(res.body.message).to.be.a('string');
 		});
 
@@ -86,7 +88,9 @@ describe('User Delete API', () => {
 
 			const adminToken = tokenHook(mockAdmin);
 
-			const res = await requestHook(mockUser.id, adminToken).send(payload).expect(404);
+			const res = await requestHook(mockUser.id, adminToken)
+				.send(payload)
+				.expect(404);
 			chai.expect(res.body.message).to.be.a('string');
 		});
 

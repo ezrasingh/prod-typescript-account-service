@@ -18,7 +18,7 @@ describe('Accounts service', () => {
 
 	afterEach(() => {
 		sandbox.restore();
-	})
+	});
 
 	describe('GET /health', () => {
 		it('should return service health check', async () => {

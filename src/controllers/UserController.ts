@@ -11,7 +11,7 @@ class UserController {
 		let users: User[];
 		users = await userRepository.find({
 			// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
-			select: ['id', 'email', 'role']
+			select: ['id', 'email', 'role', 'lastLogin']
 		});
 
 		res.status(200).send({ users });
@@ -27,7 +27,7 @@ class UserController {
 		try {
 			user = await userRepository.findOneOrFail(id, {
 				// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
-				select: ['id', 'email', 'role']
+				select: ['id', 'email', 'role', 'lastLogin']
 			});
 		} catch (error) {
 			res.status(404).send({ message: 'user not found' });
@@ -145,7 +145,7 @@ class UserController {
 		try {
 			user = await userRepository.findOneOrFail(userId, {
 				// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
-				select: ['id', 'email', 'role']
+				select: ['id', 'email', 'role', 'lastLogin']
 			});
 		} catch (error) {
 			res.status(404).send({ message: 'auth token is stale' });

@@ -63,9 +63,10 @@ describe('Accounts Login API', () => {
 		});
 
 		it('should issue a signed jwt upon valid credentials', async () => {
-			sandbox
-				.stub(typeorm, 'getRepository')
-				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
+			sandbox.stub(typeorm, 'getRepository').returns({
+				findOneOrFail: fake.resolves(mockUser),
+				save: fake()
+			} as any);
 
 			const res = await requestHook().send(payload).expect(200);
 

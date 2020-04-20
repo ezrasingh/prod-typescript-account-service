@@ -36,6 +36,10 @@ class AuthController {
 			return;
 		}
 
+		// ? update last login time
+		user.lastLogin = new Date();
+		userRepository.save(user);
+
 		// ? sign JWT
 		const token = generateToken(user, req.app.locals.jwtSecret);
 
