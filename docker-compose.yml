@@ -2,8 +2,7 @@ version: '3'
 
 services:
  pg:
-  image: postgres:alpine
-  restart: unless-stopped
+  image: postgres:11-alpine
   environment:
     POSTGRES_USER: db
     POSTGRES_PASSWORD: default
