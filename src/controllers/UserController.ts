@@ -30,7 +30,7 @@ class UserController {
 				select: ['id', 'email', 'role']
 			});
 		} catch (error) {
-			res.status(404).send('User not found');
+			res.status(404).send({ message: 'user not found' });
 			return;
 		}
 
@@ -42,7 +42,7 @@ class UserController {
 		const { email, password, role } = req.body;
 
 		if (!(email && password && role)) {
-			res.status(400).send();
+			res.status(400).send({ message: 'missing request body' });
 			return;
 		}
 
@@ -67,11 +67,11 @@ class UserController {
 		try {
 			await userRepository.save(user);
 		} catch (error) {
-			res.status(409).send('email already in use');
+			res.status(409).send({ message: 'email already in use' });
 			return;
 		}
 
-		res.status(201).send('user created');
+		res.status(201).send({ message: 'user created' });
 	};
 
 	static updateUser = async (req: Request, res: Response) => {
@@ -81,7 +81,7 @@ class UserController {
 		// ? Get parameters from body
 		const { email, role } = req.body;
 		if (!(email && role)) {
-			res.status(400).send();
+			res.status(400).send({ message: 'missing request body' });
 			return;
 		}
 
@@ -91,7 +91,7 @@ class UserController {
 		try {
 			user = await userRepository.findOneOrFail(id);
 		} catch (error) {
-			res.status(404).send('User not found');
+			res.status(404).send({ message: 'user not found' });
 			return;
 		}
 
@@ -108,11 +108,11 @@ class UserController {
 		try {
 			await userRepository.save(user);
 		} catch (error) {
-			res.status(409).send('username already in use');
+			res.status(409).send({ message: 'username already in use' });
 			return;
 		}
 
-		res.status(204).send();
+		res.status(201).send({ message: 'user updated' });
 	};
 
 	static deleteUser = async (req: Request, res: Response) => {
@@ -125,7 +125,7 @@ class UserController {
 		try {
 			user = await userRepository.findOneOrFail(id);
 		} catch (error) {
-			res.status(404).send('user not found');
+			res.status(404).send({ message: 'user not found' });
 			return;
 		}
 
@@ -148,7 +148,7 @@ class UserController {
 				select: ['id', 'email', 'role']
 			});
 		} catch (error) {
-			res.status(404).send('Invalid user ID');
+			res.status(404).send({ message: 'auth token is stale' });
 			return;
 		}
 

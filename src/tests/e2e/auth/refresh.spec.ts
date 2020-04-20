@@ -41,7 +41,8 @@ describe('Accounts Refresh Token API', () => {
 		});
 
 		it('should deflect if JWT is missing from the header', async () => {
-			await requestHook().expect(401);
+			const res = await requestHook().expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user does not exist', async () => {
@@ -50,7 +51,8 @@ describe('Accounts Refresh Token API', () => {
 			} as any);
 
 			const userToken = tokenHook(mockUser);
-			await requestHook(userToken).expect(401);
+			const res = await requestHook(userToken).expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should provide fresh JWT', async () => {

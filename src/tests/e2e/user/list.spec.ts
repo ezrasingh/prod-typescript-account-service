@@ -56,7 +56,8 @@ describe('User Read All API', () => {
 				.returns({ findOneOrFail: fake.resolves(anonUser) } as any);
 
 			const anonToken = tokenHook(anonUser);
-			await requestHook(anonToken).expect(401);
+			const res = await requestHook(anonToken).expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should return all user accounts', async () => {

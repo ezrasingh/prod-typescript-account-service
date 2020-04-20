@@ -34,7 +34,8 @@ describe('Accounts Registration API', () => {
 		});
 
 		it('should deflect if missing body', async () => {
-			await requestHook().expect(400);
+			const res = await requestHook().expect(400);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if password does not meet validation', async () => {
@@ -54,7 +55,9 @@ describe('Accounts Registration API', () => {
 				.stub(passwordValidator, 'checkPassword')
 				.returns({ isValid: true });
 
-			await requestHook().send(payload).expect(400);
+			const res = await requestHook().send(payload).expect(400);
+
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user validation fails', async () => {
@@ -78,7 +81,9 @@ describe('Accounts Registration API', () => {
 				.stub(typeorm, 'getRepository')
 				.returns({ save: fake.throws('user already exist') } as any);
 
-			await requestHook().send(payload).expect(409);
+			const res = await requestHook().send(payload).expect(409);
+
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should register user account', async () => {
@@ -88,7 +93,8 @@ describe('Accounts Registration API', () => {
 
 			sandbox.stub(typeorm, 'getRepository').returns({ save: fake() } as any);
 
-			await requestHook().send(payload).expect(201);
+			const res = await requestHook().send(payload).expect(201);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 	});
 });

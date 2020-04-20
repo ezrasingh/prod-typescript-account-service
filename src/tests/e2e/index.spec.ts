@@ -16,6 +16,10 @@ describe('Accounts service', () => {
 		requestHook = () => request(app.server).get('/health');
 	});
 
+	afterEach(() => {
+		sandbox.restore();
+	})
+
 	describe('GET /health', () => {
 		it('should return service health check', async () => {
 			sandbox.replace(os, 'uptime', fake.returns(123));

@@ -19,7 +19,7 @@ const checkRole = (roles: string[]) => {
 		} catch (error) {
 			// ! fail quietly to minimize
 			// ! surface area of a brute force attack
-			res.status(401).send();
+			res.status(401).send({ message: 'permission denied' });
 			return;
 		}
 
@@ -27,7 +27,7 @@ const checkRole = (roles: string[]) => {
 		if (!roles.includes(user.role)) {
 			// ! fail quietly to minimize
 			// ! surface area of a brute force attack
-			res.status(401).send();
+			res.status(401).send({ message: 'permission denied' });
 			return;
 		}
 

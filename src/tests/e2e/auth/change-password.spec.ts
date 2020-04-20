@@ -56,12 +56,14 @@ describe('Accounts Change Password API', () => {
 		});
 
 		it('should deflect if missing JWT', async () => {
-			await requestHook().expect(401);
+			const res = await requestHook().expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if missing body', async () => {
 			const userToken = tokenHook(mockUser);
-			await requestHook(userToken).expect(400);
+			const res = await requestHook(userToken).expect(400);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if new password fails validation', async () => {
@@ -83,7 +85,8 @@ describe('Accounts Change Password API', () => {
 				.returns({ isValid: true });
 
 			const userToken = tokenHook(mockUser);
-			await requestHook(userToken).send(payload).expect(400);
+			const res = await requestHook(userToken).send(payload).expect(400);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user does not exist', async () => {
@@ -96,7 +99,8 @@ describe('Accounts Change Password API', () => {
 			} as any);
 
 			const userToken = tokenHook(mockUser);
-			await requestHook(userToken).send(payload).expect(401);
+			const res = await requestHook(userToken).send(payload).expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if old password fails verification', async () => {
@@ -110,7 +114,8 @@ describe('Accounts Change Password API', () => {
 				.returns({ findOneOrFail: fake.resolves(mockUser) } as any);
 
 			const userToken = tokenHook(mockUser);
-			await requestHook(userToken).send(payload).expect(401);
+			const res = await requestHook(userToken).send(payload).expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user validation fails', async () => {
@@ -125,7 +130,8 @@ describe('Accounts Change Password API', () => {
 			sandbox.replace(classValidator, 'validate', fake.resolves([, ,]));
 
 			const userToken = tokenHook(mockUser);
-			await requestHook(userToken).send(payload).expect(400);
+			const res = await requestHook(userToken).send(payload).expect(400);
+			chai.expect(res.body.errors).to.be.an('array');
 		});
 
 		it("should update user's password", async () => {
@@ -141,7 +147,8 @@ describe('Accounts Change Password API', () => {
 			sandbox.replace(classValidator, 'validate', fake.resolves([]));
 
 			const userToken = tokenHook(mockUser);
-			await requestHook(userToken).send(payload).expect(204);
+			const res = await requestHook(userToken).send(payload).expect(201);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 	});
 });

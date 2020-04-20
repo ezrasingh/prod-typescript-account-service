@@ -1,4 +1,5 @@
 import { createSandbox, SinonSandbox, fake } from 'sinon';
+import * as chai from 'chai';
 import * as request from 'supertest';
 
 import 'mocha';
@@ -64,7 +65,8 @@ describe('User Create API', () => {
 
 			const userToken = tokenHook(anonUser);
 
-			await requestHook(userToken).send(payload).expect(401);
+			const res = await requestHook(userToken).send(payload).expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if missing request body', async () => {
@@ -74,7 +76,8 @@ describe('User Create API', () => {
 				.returns({ findOneOrFail: fake.resolves(mockAdmin) } as any);
 
 			const adminToken = tokenHook(mockAdmin);
-			await requestHook(adminToken).expect(400);
+			const res = await requestHook(adminToken).expect(400);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user fails validation', async () => {
@@ -86,7 +89,8 @@ describe('User Create API', () => {
 			sandbox.replace(classValidator, 'validate', fake.resolves([, ,]));
 
 			const adminToken = tokenHook(mockAdmin);
-			await requestHook(adminToken).send(payload).expect(400);
+			const res = await requestHook(adminToken).send(payload).expect(400);
+			chai.expect(res.body.errors).to.be.an('array');
 		});
 
 		it('should deflect if user already exist', async () => {
@@ -98,7 +102,8 @@ describe('User Create API', () => {
 				.returns({ findOneOrFail: fake.throws('user already exist') } as any);
 
 			const adminToken = tokenHook(mockAdmin);
-			await requestHook(adminToken).send(payload).expect(409);
+			const res = await requestHook(adminToken).send(payload).expect(409);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should create a new user', async () => {
@@ -110,7 +115,8 @@ describe('User Create API', () => {
 				.returns({ save: fake() } as any);
 
 			const adminToken = tokenHook(mockAdmin);
-			await requestHook(adminToken).send(payload).expect(201);
+			const res = await requestHook(adminToken).send(payload).expect(201);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 	});
 });

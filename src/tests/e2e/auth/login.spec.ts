@@ -1,5 +1,4 @@
 import { createSandbox, SinonSandbox, fake } from 'sinon';
-import * as assert from 'assert';
 import * as chai from 'chai';
 import * as request from 'supertest';
 import 'mocha';
@@ -37,7 +36,9 @@ describe('Accounts Login API', () => {
 		});
 
 		it('should deflect if missing body', async () => {
-			await requestHook().expect(400);
+			const res = await requestHook().expect(400);
+
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user does not exist', async () => {
@@ -45,7 +46,9 @@ describe('Accounts Login API', () => {
 				findOneOrFail: fake.throws('user does not exist')
 			} as any);
 
-			await requestHook().send(payload).expect(401);
+			const res = await requestHook().send(payload).expect(401);
+
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user password is invalid', async () => {
@@ -55,7 +58,8 @@ describe('Accounts Login API', () => {
 
 			sandbox.stub(mockUser, 'verifyPassword').value(fake.returns(false));
 
-			await requestHook().send(payload).expect(401);
+			const res = await requestHook().send(payload).expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should issue a signed jwt upon valid credentials', async () => {

@@ -45,7 +45,8 @@ describe('User Identity API', () => {
 		});
 
 		it('should deflect if missing token in request', async () => {
-			await requestHook().expect(401);
+			const res = await requestHook().expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if token is stale', async () => {
@@ -55,7 +56,8 @@ describe('User Identity API', () => {
 
 			const token = tokenHook(mockUser);
 
-			await requestHook(token).expect(404);
+			const res = await requestHook(token).expect(404);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should return user account', async () => {

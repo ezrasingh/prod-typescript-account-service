@@ -1,5 +1,5 @@
 import { createSandbox, SinonSandbox, fake } from 'sinon';
-import * as assert from 'assert';
+import * as chai from 'chai';
 import * as request from 'supertest';
 
 import 'mocha';
@@ -72,7 +72,8 @@ describe('User Delete API', () => {
 
 			const anonToken = tokenHook(anonUser);
 
-			await requestHook(mockUser.id, anonToken).send(payload).expect(401);
+			const res = await requestHook(mockUser.id, anonToken).send(payload).expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user does not exist', async () => {
@@ -85,7 +86,8 @@ describe('User Delete API', () => {
 
 			const adminToken = tokenHook(mockAdmin);
 
-			await requestHook(mockUser.id, adminToken).send(payload).expect(404);
+			const res = await requestHook(mockUser.id, adminToken).send(payload).expect(404);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should remove user from the database', async () => {

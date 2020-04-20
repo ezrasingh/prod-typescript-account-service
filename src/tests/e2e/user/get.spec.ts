@@ -61,7 +61,8 @@ describe('User Read API', () => {
 
 			const anonToken = tokenHook(anonUser);
 
-			await requestHook(1, anonToken).expect(401);
+			const res = await requestHook(1, anonToken).expect(401);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should deflect if user does not exist', async () => {
@@ -74,7 +75,8 @@ describe('User Read API', () => {
 
 			const adminToken = tokenHook(mockAdmin);
 
-			await requestHook(1, adminToken).expect(404);
+			const res = await requestHook(1, adminToken).expect(404);
+			chai.expect(res.body.message).to.be.a('string');
 		});
 
 		it('should return user account', async () => {
@@ -92,6 +94,8 @@ describe('User Read API', () => {
 			const res = await requestHook(mockUser.id, adminToken).expect(200);
 
 			chai.expect(res.body.user.id).to.be.eql(mockUser.id);
+			chai.expect(res.body.user.email).to.be.eql(mockUser.email);
+			chai.expect(res.body.user.role).to.be.eql(mockUser.role);
 		});
 	});
 });
