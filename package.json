@@ -46,11 +46,11 @@
       "http-terminator": "^2.0.2",
       "jsonwebtoken": "^8.5.1",
       "morgan": "^1.10.0",
-      "password-validator": "^5.0.3",
       "pg": "^8.0.2",
       "reflect-metadata": "^0.1.10",
       "ts-node-dev": "^1.0.0-pre.44",
-      "typeorm": "0.2.24"
+      "typeorm": "0.2.24",
+      "validate-password": "^1.0.4"
    },
    "scripts": {
       "postinstall": "cp template.env .env",
