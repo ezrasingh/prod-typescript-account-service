@@ -2,7 +2,7 @@ FROM node:12.16.2-alpine AS Builder
 
 WORKDIR /usr/src/app
 
-COPY docker/scripts/ ./
+COPY scripts/ ./
 COPY dist/ ./
 COPY package*.json ./
 
@@ -24,7 +24,7 @@ FROM SecureRunner AS Runner
 
 RUN npm install pm2 -g --quiet
 
-USER node3*
+USER node
 
 EXPOSE 80
 
