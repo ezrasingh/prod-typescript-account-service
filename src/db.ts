@@ -1,9 +1,7 @@
 import {
 	Connection,
-	ConnectionOptions,
 	ConnectionManager,
 	getConnectionManager,
-	getConnectionOptions
 } from 'typeorm';
 
 class Database {
