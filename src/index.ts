@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 
-import { startServer, shutdownServer } from './utils';
+import { startServer } from './utils';
 import Application from './app';
 import Database from './db';
 
@@ -12,24 +12,51 @@ export const app = new Application(+process.env.PORT);
 
 export const db = new Database(
 	+process.env.DB_CONNECTION_RETRIES,
-	+process.env.DB_CONNECTION_WAIT
+	+process.env.DB_CONNECTION_WAIT,
+	process.env.DB_MASTER,
+	process.env.DB_REPLICA ? [process.env.DB_REPLICA] : []
 );
 
-/** driver code to handle graceful start */
+/** driver code to startup runtime */
 async function run() {
-	await startServer(app, db);
+	try {
+		await startServer(app, db);
+	} catch (error) {
+		// console.log(error);
+
+		// tslint:disable-next-line:no-console
+		console.log('Service failed to run');
+		process.exit(1);
+	}
 }
 
-/** driver code to handle graceful stop */
+/** driver code to handle graceful shutdown */
 async function shutdown() {
-	await shutdownServer(app, db);
+	try {
+		// tslint:disable-next-line:no-console
+		console.log('Stopping server...');
+		await app.stop();
+
+		// tslint:disable-next-line:no-console
+		console.log('Disconnecting from database...');
+		await db.disconnect();
+	} catch (error) {
+		// console.log(error);
+
+		// tslint:disable-next-line:no-console
+		console.warn('Could not close the app gracefully: ', error);
+		process.exit(1);
+	} finally {
+		process.exit();
+	}
 }
 
-/** driver code to handle process lifecycle */
+/** driver code to handle process life cycle */
 if (process.env.NODE_ENV !== 'testing') {
 	if (process.argv.includes('start')) {
 		run();
 	}
+	// ? close process gracefully
 	process.on('SIGTERM', shutdown);
 	process.on('SIGINT', shutdown);
 }

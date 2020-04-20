@@ -7,8 +7,7 @@ import * as typeorm from 'typeorm';
 import {
 	generatePasswordSchema,
 	generateToken,
-	startServer,
-	shutdownServer
+	startServer
 } from '../../utils';
 import { User } from '../../models/User';
 import Database from '../../db';
@@ -68,7 +67,7 @@ describe('Utilities library', () => {
 			chai.expect(schema.checkPassword('testpass').isValid).to.be.true;
 			chai.expect(schema.checkPassword('12345678').isValid).to.be.false;
 			chai.expect(schema.checkPassword('!@#$%^&*').isValid).to.be.false;
-			});
+		});
 
 		it('should enforce numbers', () => {
 			const schema = schemaHook({
@@ -82,7 +81,7 @@ describe('Utilities library', () => {
 			chai.expect(schema.checkPassword('testpass').isValid).to.be.false;
 			chai.expect(schema.checkPassword('12345678').isValid).to.be.true;
 			chai.expect(schema.checkPassword('!@#$%^&*').isValid).to.be.false;
-			});
+		});
 
 		it('should enforce symbols', () => {
 			const schema = schemaHook({
@@ -90,7 +89,7 @@ describe('Utilities library', () => {
 				PASSWORD_ENFORCE_LOWERCASE: 'false',
 				PASSWORD_ENFORCE_NUMBERS: 'false',
 				PASSWORD_ENFORCE_SYMBOLS: 'true'
-		});
+			});
 
 			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.false;
 			chai.expect(schema.checkPassword('testpass').isValid).to.be.false;
@@ -128,16 +127,13 @@ describe('Utilities library', () => {
 		let sandbox: SinonSandbox;
 		let mockApp: Application;
 		let mockDb: Database;
-		let runtimeSpy;
 
 		beforeEach(() => {
-			runtimeSpy = spy();
 			sandbox = createSandbox();
 			sandbox
-				.stub(typeorm, 'getConnectionManager')
-				.returns({ has: fake.returns(true) } as any);
+				.replace(typeorm, 'getConnectionManager', fake());
 
-			mockDb = new Database(1, 1);
+			mockDb = new Database(1, 1, 'db://', []);
 			mockApp = new Application(1);
 		});
 
@@ -145,28 +141,21 @@ describe('Utilities library', () => {
 			sandbox.restore();
 		});
 		it('should attempt to connect to the database', async () => {
-			const establishConnectionsSpy = fake();
-			const loadConnectionsSpy = fake();
-			sandbox.replace(mockDb, 'establishConnections', establishConnectionsSpy);
-			sandbox.replace(mockDb, 'loadConnections', loadConnectionsSpy);
+			const dbConnectSpy = fake();
+			sandbox.replace(mockDb, 'connect', dbConnectSpy);
 
 			await startServer(mockApp, mockDb);
 
-			chai.expect(establishConnectionsSpy.calledOnce).to.be.true;
-			chai.expect(loadConnectionsSpy.calledOnce).to.be.true;
+			chai.expect(dbConnectSpy.calledOnce).to.be.true;
 		});
 
 		it('should fail if connection to database fails', async () => {
 			sandbox.replace(
 				mockDb,
-				'establishConnections',
+				'connect',
 				fake.throws('could not establish connection')
 			);
-			sandbox.replace(
-				mockDb,
-				'loadConnections',
-				fake.throws('could not load connection')
-			);
+
 			try {
 				await startServer(mockApp, mockDb);
 			} catch (error) {
@@ -175,8 +164,7 @@ describe('Utilities library', () => {
 		});
 
 		it('should fail if application runtime fails', async () => {
-			sandbox.replace(mockDb, 'establishConnections', fake());
-			sandbox.replace(mockDb, 'loadConnections', fake());
+			sandbox.replace(mockDb, 'connect', fake());
 			sandbox.replace(mockApp, 'start', fake.throws('app runtime failed'));
 
 			try {
@@ -187,48 +175,10 @@ describe('Utilities library', () => {
 		});
 
 		it('should initialize resources and begin runtime', async () => {
-			sandbox.replace(mockDb, 'establishConnections', fake());
-			sandbox.replace(mockDb, 'loadConnections', fake());
+			sandbox.replace(mockDb, 'connect', fake());
 			sandbox.replace(mockApp, 'start', fake());
 
 			await startServer(mockApp, mockDb);
 		});
-	});
-
-	describe('shutdownServer', () => {
-		let sandbox: SinonSandbox;
-		let mockApp: Application;
-		let mockDb: Database;
-		let runtimeSpy;
-
-		beforeEach(() => {
-			runtimeSpy = spy();
-			sandbox = createSandbox();
-			sandbox
-				.stub(typeorm, 'getConnectionManager')
-				.returns({ has: fake.returns(true) } as any);
-
-			sandbox.stub(process, 'exit');
-
-			mockDb = new Database(1, 1);
-			mockApp = new Application(1);
-		});
-
-		afterEach(() => {
-			sandbox.restore();
-		});
-
-		it('should attempt to disconnect from the database', async () => {
-			const disconnectSpy = spy();
-			sandbox.replace(mockDb, 'disconnect', disconnectSpy);
-			await shutdownServer(mockApp, mockDb);
-			chai.expect(disconnectSpy.calledOnce).to.be.true;
-		})
-		it('should attempt to shutdown app', async () => {
-			const shutdownSpy = spy();
-			sandbox.replace(mockApp, 'stop', shutdownSpy);
-			await shutdownServer(mockApp, mockDb);
-			chai.expect(shutdownSpy.calledOnce).to.be.true;
-		})
 	});
 });

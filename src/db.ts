@@ -9,31 +9,56 @@ import {
 class Database {
 	public connection: Connection;
 	public connectionManager: ConnectionManager;
-	private connectionOptions: ConnectionOptions;
+	private connectionOptions: any;
+
 	private maxConnectionRetries: number;
 	private reconnectionWaitTime: number;
 
-	constructor(maxReconnectionRetries: number, reconnectionWaitTime: number) {
+	constructor(
+		maxReconnectionRetries: number,
+		reconnectionWaitTime: number,
+		dbMaster: string,
+		replicas?: string[]
+	) {
 		this.maxConnectionRetries = maxReconnectionRetries;
 		this.reconnectionWaitTime = reconnectionWaitTime;
+		this.connectionOptions = {
+			type: 'postgres',
+			logging: process.env.NODE_ENV !== 'production',
+			synchronize: process.env.NODE_ENV !== 'production',
+			entities: [__dirname + '/models/*{.js,.ts}'],
+			url: dbMaster
+		};
+
+		if (replicas.length > 0) {
+			this.connectionOptions.replication = {
+				master: { url: dbMaster },
+				slaves: replicas.map((nodeUrl, _id) => {
+					return { url: nodeUrl };
+				})
+			};
+		}
+
+		this.connectionManager = getConnectionManager();
 	}
 
-	public establishConnections = async () => {
-		this.connectionManager = getConnectionManager();
+	public connect = async () => {
 		if (!this.connectionManager.has('default')) {
-			this.connectionOptions = await getConnectionOptions();
-			this.connectionManager.create(this.connectionOptions);
+			this.connection = this.connectionManager.create(
+				this.connectionOptions as any
+			);
+		} else {
+			this.connection = this.connectionManager.get('default');
 		}
-	};
 
-	public loadConnections = async () => {
-		this.connection = this.connectionManager.get();
 		let retries = this.maxConnectionRetries;
 		while (retries) {
 			try {
 				await this.connection.connect();
 				break;
 			} catch (error) {
+				// console.log(error); break;
+
 				retries -= 1;
 				// tslint:disable-next-line:no-console
 				console.warn(
@@ -43,9 +68,7 @@ class Database {
 					setTimeout(res, this.reconnectionWaitTime * 1000);
 				});
 				if (retries === 0) {
-					// tslint:disable-next-line:no-console
-					console.error('Cannot load connections to the database: ', error);
-					process.exit(1);
+					throw new Error('Cannot connect to database');
 				}
 			}
 		}
@@ -62,6 +85,8 @@ class Database {
 				});
 				break;
 			} catch (error) {
+				// console.log(error); break;
+
 				retries -= 1;
 				// tslint:disable-next-line:no-console
 				console.log(
