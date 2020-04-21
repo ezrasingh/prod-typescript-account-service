@@ -65,7 +65,7 @@
       "bundle": "env NODE_ENV=production npm run build && webpack",
       "docker:host": "echo %DOCKER_HOST% || echo ${DOCKER_HOST}",
       "docker:dev:db": "docker-compose -f docker-compose.yml -f docker/dev/docker-compose.yml up --build",
-      "docker:dev:rm": "npm run docker:down && docker rm --volumes -f accounts_pg_dev && docker volume rm accounts_pgconf accounts_pgdata accounts_pglog",
+      "docker:dev:rm": "npm run docker:down && docker rm -f accounts_pg_dev && docker volume rm accounts_pgconf accounts_pgdata accounts_pglog",
       "docker:dev": "npm run docker:dev:db -- -d",
       "docker:staging": "docker-compose -f docker-compose.yml -f docker/db/docker-compose.yml -f docker/staging/docker-compose.yml",
       "docker:staging:build": "npm run bundle && npm run docker:staging -- build",
