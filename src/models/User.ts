@@ -33,7 +33,7 @@ export class User {
 	@IsEmail()
 	email: string;
 
-	@Column()
+	@Column({ select: false })
 	@Length(8, 100)
 	password: string;
 
@@ -53,15 +53,15 @@ export class User {
 	@UpdateDateColumn()
 	updatedAt: Date;
 
-	@Column()
+	@Column({ nullable: true })
 	lastLogin: Date;
 
-	@Column()
+	@Column({ default: 0 })
 	loginCount: number;
 
 	@OneToOne(_type => Profile, profile => profile.user, { cascade: true })
 	@JoinColumn()
-	profile: number;
+	profile: Profile;
 
 	hashPassword(): void {
 		this.password = bcrypt.hashSync(this.password, salt);
