@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
 
-import { User, UserRole } from '../models/User';
+import { User, UserRole, Profile, Name } from '../models';
 import { generateToken, generatePasswordSchema } from '../utils';
 
 export const passwordValidator = generatePasswordSchema();
@@ -49,10 +49,15 @@ class AuthController {
 	};
 
 	static register = async (req: Request, res: Response) => {
-		const { email, password, confirmPassword } = req.body;
+		const { email, password, confirmPassword, profile } = req.body;
 		// ? check if email and password are set
-		if (!(email && password && confirmPassword)) {
+		if (!(email && password && confirmPassword && profile)) {
 			res.status(400).send({ message: 'missing user registration body' });
+			return;
+		}
+
+		if(!(profile.firstName && profile.lastName)){
+			res.status(400).send({ message: 'missing profile name'})
 			return;
 		}
 
@@ -69,11 +74,28 @@ class AuthController {
 			return;
 		}
 
-		// ? build user entity
-		const user = new User();
-		user.email = email;
-		user.password = password;
-		user.role = UserRole.CUSTOMER;
+		// ? build user entity and associated profile
+		let userProfile: Profile;
+		let user: User;
+		try{
+			const name = new Name();
+			name.first = profile.firstName;
+			name.last = profile.lastName;
+
+			userProfile = new Profile();
+			userProfile.name = name;
+
+			user = new User();
+			user.email = email;
+			user.password = password;
+			user.role = UserRole.CUSTOMER;
+			user.profile = userProfile;
+		} catch(error) {
+			console.log(error);
+
+			res.status(400).send({ message: 'could not register user' });
+			return;
+		}
 
 		// ? validate user entry
 		const errors = await validate(user);
