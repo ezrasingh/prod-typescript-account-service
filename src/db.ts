@@ -1,4 +1,5 @@
 import { Connection, ConnectionManager, getConnectionManager } from 'typeorm';
+import models from './models'
 
 class Database {
 	public connection: Connection;
@@ -20,7 +21,7 @@ class Database {
 			type: 'postgres',
 			logging: process.env.NODE_ENV !== 'production',
 			synchronize: process.env.NODE_ENV !== 'production',
-			entities: [__dirname + '/models/*{.js,.ts}'],
+			entities: models,
 			url: dbMaster
 		};
 
@@ -56,7 +57,7 @@ class Database {
 				retries -= 1;
 				// tslint:disable-next-line:no-console
 				console.warn(
-					`Connection failed attempt: ${retries}/${this.maxConnectionRetries}`
+					`Connection failed attempt: ${this.maxConnectionRetries - retries}/${this.maxConnectionRetries}`
 				);
 				await new Promise(res => {
 					setTimeout(res, this.reconnectionWaitTime * 1000);
@@ -84,7 +85,7 @@ class Database {
 				retries -= 1;
 				// tslint:disable-next-line:no-console
 				console.log(
-					`Disconnection failed attempt: ${retries}/${this.maxConnectionRetries}`
+					`Disconnection failed attempt: ${this.maxConnectionRetries - retries}/${this.maxConnectionRetries}`
 				);
 				await new Promise(res =>
 					setTimeout(res, this.maxConnectionRetries * 1000)

@@ -4,10 +4,14 @@ import {
 	Column,
 	Unique,
 	CreateDateColumn,
-	UpdateDateColumn
+	UpdateDateColumn,
+	OneToOne,
+	JoinColumn
 } from 'typeorm';
 import { Length, IsEmail, IsNotEmpty } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
+
+import { Profile } from './Profile';
 
 const salt: number = +process.env.BCRYPT_SALT_LEN || 8;
 
@@ -51,6 +55,13 @@ export class User {
 
 	@Column()
 	lastLogin: Date;
+
+	@Column()
+	loginCount: number;
+
+	@OneToOne(_type => Profile, profile => profile.user, { cascade: true })
+	@JoinColumn()
+	profile: number;
 
 	hashPassword(): void {
 		this.password = bcrypt.hashSync(this.password, salt);
