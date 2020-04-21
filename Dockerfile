@@ -6,7 +6,7 @@ COPY scripts/ ./
 COPY dist/ ./
 COPY package*.json ./
 
-ENV PORT=80
+ENV PORT=5000
 ENV NODE_ENV=production
 RUN npm ci
 
@@ -26,7 +26,7 @@ RUN npm install pm2 -g --quiet
 
 USER node
 
-EXPOSE 80
+EXPOSE 5000
 
 HEALTHCHECK --interval=12s --timeout=12s --start-period=30s \
  CMD node healthcheck.js

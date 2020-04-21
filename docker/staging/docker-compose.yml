@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+ app:
+  container_name: accounts_app_staging
+  build: .
+  restart: unless-stopped
+  tty: true
+  ports:
+    - "5000:5000"
+  depends_on:
+   - pg
+  environment:
+    DB_CONNECTION_RETRIES: 5
+    DB_CONNECTION_WAIT: 10
+    DB_MASTER: postgresql://db:staging@pg:5432/accounts/staging
+    SECRET_KEY_SIZE: 24
+    TOKEN_LIFETIME: '1h'
+    BCRYPT_SALT_LEN: 10
+    PASSWORD_ENFORCE_UPPERCASE: 'true'
+    PASSWORD_ENFORCE_LOWERCASE: 'true'
+    PASSWORD_ENFORCE_NUMBERS: 'true'
+    PASSWORD_ENFORCE_SYMBOLS: 'false'
+ pg:
+  container_name: accounts_pg_staging
+  restart: unless-stopped
+  environment:
+    POSTGRES_PASSWORD: staging
+    POSTGRES_DB: accounts/staging
+
+
+
