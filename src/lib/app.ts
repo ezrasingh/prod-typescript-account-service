@@ -1,11 +1,6 @@
 import { Server } from 'http';
 import { Request, Response, RequestHandler } from 'express';
 import { createHttpTerminator } from 'http-terminator';
-import {
-	getConnectionManager,
-	getConnectionOptions,
-	ConnectionManager
-} from 'typeorm';
 import * as os from 'os';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -15,7 +10,6 @@ import * as requestId from 'express-request-id';
 
 import Logger from './logger';
 import routes from '../routes';
-import { print } from 'util';
 
 type HttpTerminator = { terminate: () => Promise<void> };
 
