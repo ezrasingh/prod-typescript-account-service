@@ -14,7 +14,7 @@ import * as cors from 'cors';
 import * as requestId from 'express-request-id';
 
 import Logger from './logger';
-import routes from './routes';
+import routes from '../routes';
 import { print } from 'util';
 
 type HttpTerminator = { terminate: () => Promise<void> };

@@ -2,8 +2,7 @@ import * as jwt from 'jsonwebtoken';
 import ValidatePassword = require('validate-password');
 
 import { User } from './models/User';
-import Application from './app';
-import Database from './db';
+import { Application, Database } from './lib';
 
 export function generatePasswordSchema(): ValidatePassword {
 	return new ValidatePassword({

@@ -1,5 +1,5 @@
 import { Connection, ConnectionManager, getConnectionManager } from 'typeorm';
-import models from './models'
+import models from '../models'
 
 class Database {
 	public connection: Connection;

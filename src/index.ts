@@ -2,8 +2,7 @@ import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 
 import { startServer } from './utils';
-import Application from './app';
-import Database from './db';
+import { Application, Database } from './lib';
 
 dotenv.config();
 
