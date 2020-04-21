@@ -12,14 +12,18 @@ import { passwordValidator } from '../../../controllers/AuthController';
 describe('Accounts Registration API', () => {
 	describe('POST /api/auth/register', async () => {
 		let sandbox: SinonSandbox;
-		let payload: { email: string; password: string; confirmPassword: string };
+		let payload: { email: string; password: string; confirmPassword: string, profile: { firstName: string, lastName: string } };
 		let requestHook: Function;
 
 		beforeEach(() => {
 			payload = {
 				email: 'user@app.com',
 				password: 'userPASS123',
-				confirmPassword: 'userPASS123'
+				confirmPassword: 'userPASS123',
+				profile: {
+					firstName: 'John',
+					lastName: 'Doe'
+				}
 			};
 
 			sandbox = createSandbox();
