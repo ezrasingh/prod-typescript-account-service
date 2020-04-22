@@ -27,6 +27,15 @@ services:
   environment:
     POSTGRES_PASSWORD: staging
     POSTGRES_DB: accounts/staging
+  volumes:
+   - pgdata_staging:/var/lib/postgresql/data
+   - pgconf_staging:/etc/postgresql
+   - pglog_staging:/var/log/postgresql
 
-
-
+volumes:
+ pgdata_staging:
+  driver: local
+ pgconf_staging:
+  driver: local
+ pglog_staging:
+  driver: local
