@@ -1,18 +1,13 @@
-import { createSandbox, SinonSandbox, fake } from 'sinon';
+import { createSandbox, SinonSandbox } from 'sinon';
 import * as chai from 'chai';
 import 'mocha';
-
-import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
-import * as typeorm from 'typeorm';
 import {
 	generatePasswordSchema,
 	getJwtCertificates,
-	signToken,
-	startServer
+	signToken
 } from '../../utils';
 import { User } from '../../models/User';
-import { Application, Database } from '../../lib';
 
 describe('Utilities library', () => {
 	describe('generatePasswordSchema', () => {
@@ -119,64 +114,5 @@ describe('Utilities library', () => {
 			chai.expect(payload['userId']).to.be.eql(user.id);
 		});
 		it('should fail if signature is self signed', () => {});
-	});
-
-	describe('startServer', () => {
-		let sandbox: SinonSandbox;
-		let mockApp: Application;
-		let mockDb: Database;
-
-		beforeEach(() => {
-			sandbox = createSandbox();
-			sandbox.replace(typeorm, 'getConnectionManager', fake());
-			sandbox.replace(console, 'log', fake());
-
-			mockDb = new Database(1, 1, 'db://', []);
-			mockApp = new Application(1);
-		});
-
-		afterEach(() => {
-			sandbox.restore();
-		});
-		it('should attempt to connect to the database', async () => {
-			const dbConnectSpy = fake();
-			sandbox.replace(mockDb, 'connect', dbConnectSpy);
-
-			await startServer(mockApp, mockDb);
-
-			chai.expect(dbConnectSpy.calledOnce).to.be.true;
-		});
-
-		it('should fail if connection to database fails', async () => {
-			sandbox.replace(
-				mockDb,
-				'connect',
-				fake.throws('could not establish connection')
-			);
-
-			try {
-				await startServer(mockApp, mockDb);
-			} catch (error) {
-				chai.expect(error).to.be.an.instanceOf(Error);
-			}
-		});
-
-		it('should fail if application runtime fails', async () => {
-			sandbox.replace(mockDb, 'connect', fake());
-			sandbox.replace(mockApp, 'start', fake.throws('app runtime failed'));
-
-			try {
-				await startServer(mockApp, mockDb);
-			} catch (error) {
-				chai.expect(error).to.be.an.instanceOf(Error);
-			}
-		});
-
-		it('should initialize resources and begin runtime', async () => {
-			sandbox.replace(mockDb, 'connect', fake());
-			sandbox.replace(mockApp, 'start', fake());
-
-			await startServer(mockApp, mockDb);
-		});
 	});
 });

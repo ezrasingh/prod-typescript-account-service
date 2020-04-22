@@ -3,7 +3,6 @@ import * as jwt from 'jsonwebtoken';
 import ValidatePassword = require('validate-password');
 
 import { User } from './models/User';
-import { Application, Database } from './lib';
 
 /** returns a password validation schema */
 export function generatePasswordSchema(): ValidatePassword {
@@ -17,7 +16,7 @@ export function generatePasswordSchema(): ValidatePassword {
 	});
 }
 
-/** memoization of private key into memory */
+/** memoization of RSA certificates into memory */
 export const getJwtCertificates = (function () {
 	const certificates = {
 		key: null,
@@ -45,31 +44,4 @@ export function signToken(user: User): string {
 		algorithm: 'RS256',
 		expiresIn: process.env.TOKEN_LIFETIME
 	});
-}
-
-/** Establish connections and load resources */
-export async function startServer(
-	app: Application,
-	db: Database
-): Promise<void> {
-	// tslint:disable-next-line:no-console
-	console.log('Connecting to database...');
-	try {
-		await db.connect();
-		// tslint:disable-next-line:no-console
-		console.log('Connected OK!');
-	} catch (error) {
-		// console.log(error);
-		throw new Error('Could not establish connection to database');
-	}
-
-	// tslint:disable-next-line:no-console
-	console.log('Starting server...');
-	try {
-		app.start();
-	} catch (error) {
-		// console.log(error);
-
-		throw new Error('Could not start application');
-	}
 }

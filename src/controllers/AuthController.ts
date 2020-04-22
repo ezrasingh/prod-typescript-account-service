@@ -91,7 +91,7 @@ class AuthController {
 			user.role = UserRole.CUSTOMER;
 			user.profile = userProfile;
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 
 			res.status(400).send({ message: 'could not register user' });
 			return;
@@ -112,6 +112,7 @@ class AuthController {
 		try {
 			await userRepository.save(user);
 		} catch (error) {
+			// console.log(error)
 			res.status(409).send({ message: 'email already in use' });
 			return;
 		}
