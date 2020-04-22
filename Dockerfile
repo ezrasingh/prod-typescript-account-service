@@ -5,6 +5,8 @@ WORKDIR /usr/src/app
 COPY scripts/ ./
 COPY dist/ ./
 COPY package*.json ./
+COPY private.key ./
+COPY public.cert ./
 
 ENV PORT=5000
 ENV NODE_ENV=production
@@ -19,6 +21,10 @@ RUN chown node healthcheck.js
 RUN chmod 500 healthcheck.js
 RUN chown node app.bundle.js
 RUN chmod 500 app.bundle.js
+RUN chown node private.key
+RUN chmod 400 private.key
+RUN chown node public.cert
+RUN chmod 400 public.cert
 
 FROM SecureRunner AS Runner
 
