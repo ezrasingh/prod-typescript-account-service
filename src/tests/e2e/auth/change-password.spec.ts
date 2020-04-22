@@ -8,7 +8,7 @@ import * as typeorm from 'typeorm';
 import { app } from '../../../index';
 
 import { User, UserRole } from '../../../models/User';
-import { generateToken } from '../../../utils';
+import { signToken } from '../../../utils';
 import { passwordValidator } from '../../../controllers/AuthController';
 
 describe('Accounts Change Password API', () => {
@@ -41,7 +41,7 @@ describe('Accounts Change Password API', () => {
 			sandbox = createSandbox();
 
 			tokenHook = (user?: User): string => {
-				return generateToken(user, app.server.locals.jwtSecret);
+				return signToken(user);
 			};
 
 			requestHook = (token?: string) => {

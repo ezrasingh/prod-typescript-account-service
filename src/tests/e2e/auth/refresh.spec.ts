@@ -6,7 +6,7 @@ import 'mocha';
 import * as typeorm from 'typeorm';
 import { app } from '../../../index';
 import { User, UserRole } from '../../../models/User';
-import { generateToken } from '../../../utils';
+import { signToken } from '../../../utils';
 
 describe('Accounts Refresh Token API', () => {
 	describe('GET /api/auth/refresh', async () => {
@@ -26,7 +26,7 @@ describe('Accounts Refresh Token API', () => {
 			sandbox = createSandbox();
 
 			tokenHook = (user: User) => {
-				return generateToken(user, app.server.locals.jwtSecret);
+				return signToken(user);
 			};
 
 			requestHook = (token?: string) => {
