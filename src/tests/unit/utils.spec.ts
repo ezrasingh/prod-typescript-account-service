@@ -1,17 +1,18 @@
-import { createSandbox, SinonSandbox, fake, spy } from 'sinon';
+import { createSandbox, SinonSandbox, fake } from 'sinon';
 import * as chai from 'chai';
 import 'mocha';
 
+import * as fs from 'fs';
 import * as jwt from 'jsonwebtoken';
 import * as typeorm from 'typeorm';
 import {
 	generatePasswordSchema,
-	generateToken,
+	getJwtCertificates,
+	signToken,
 	startServer
 } from '../../utils';
 import { User } from '../../models/User';
-import Database from '../../db';
-import Application from '../../app';
+import { Application, Database } from '../../lib';
 
 describe('Utilities library', () => {
 	describe('generatePasswordSchema', () => {
@@ -98,9 +99,14 @@ describe('Utilities library', () => {
 		});
 	});
 
-	describe('generateToken', () => {
-		const signature = 'mock-signature';
+	describe('signToken', () => {
+		let publicKey: string;
 		let user: User;
+
+		before(() => {
+			const certs = getJwtCertificates();
+			publicKey = certs.publicKey;
+		});
 
 		beforeEach(() => {
 			user = new User();
@@ -108,19 +114,11 @@ describe('Utilities library', () => {
 			user.email = 'user@app.com';
 		});
 		it('should return signed JWT', () => {
-			const token = generateToken(user, signature);
-			const payload = jwt.verify(token, signature);
+			const token = signToken(user);
+			const payload = jwt.verify(token, publicKey, { algorithms: ['RS256'] });
 			chai.expect(payload['userId']).to.be.eql(user.id);
-			chai.expect(payload['email']).to.be.eql(user.email);
 		});
-		it('should fail if signature is self signed', () => {
-			const token = generateToken(user, 'self-signed-signature');
-			try {
-				jwt.verify(token, signature);
-			} catch (error) {
-				chai.expect(error).is.an.instanceOf(jwt.JsonWebTokenError);
-			}
-		});
+		it('should fail if signature is self signed', () => {});
 	});
 
 	describe('startServer', () => {
