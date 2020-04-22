@@ -8,6 +8,7 @@ import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as requestId from 'express-request-id';
 
+import { getJwtCertificates } from '../utils';
 import Logger from './logger';
 import routes from '../routes';
 
@@ -27,7 +28,7 @@ class Application {
 			':id :method :url :status :res[content-length] - :response-time ms'
 		);
 		this.server.locals.env = process.env.NODE_ENV;
-		this.generateJwtSecret();
+		this.loadPublicKey();
 		this.middleware();
 		this.routes();
 	}
@@ -45,12 +46,10 @@ class Application {
 		return this.terminator.terminate();
 	}
 
-	private generateJwtSecret(): void {
-		const secretKey: string[] = [];
-		while (secretKey.length !== +process.env.SECRET_KEY_SIZE) {
-			secretKey.push(Math.random().toString(36).substring(2));
-		}
-		this.server.locals.jwtSecret = secretKey.join('');
+	/** load public key from certificate file */
+	private loadPublicKey(): void {
+		const { publicKey } = getJwtCertificates();
+		this.server.locals.publicKey = publicKey;
 	}
 
 	private middleware(): void {
