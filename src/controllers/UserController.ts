@@ -12,7 +12,7 @@ class UserController {
 		users = await userRepository.find({
 			// ! DO NOT INCLUDE PASSWORD IN SELECTION QUERY
 			select: ['id', 'email', 'role', 'lastLogin', 'loginCount'],
-			relations: ["profile"]
+			relations: ['profile']
 		});
 
 		res.status(200).send({ users });
