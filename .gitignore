@@ -1,6 +1,8 @@
 .idea/
 .vscode/
 .env
+.nyc_output/
+coverage/
 node_modules/
 build/
 dist/
