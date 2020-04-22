@@ -20,18 +20,18 @@ export function generatePasswordSchema(): ValidatePassword {
 /** memoization of private key into memory */
 export const getJwtCertificates = (function () {
 	const certificates = {
-		publicKey: null,
-		privateKey: null
+		key: null,
+		cert: null
 	};
+	function decodeCertificate(file: string): string {
+		let cert = fs.readFileSync(file, 'base64');
+		let b64 = Buffer.from(cert, 'base64').toString('ascii');
+		return Buffer.from(b64, 'base64').toString('utf-8');
+	}
 	return () => {
-		if (!(certificates.publicKey && certificates.privateKey)) {
-			certificates.publicKey = fs
-				.readFileSync('public.pem', 'utf-8')
-				// .replace(/(\n|\0)/g, '')].join('');
-			certificates.privateKey = fs
-				.readFileSync('private.pem', 'utf-8')
-				//.replace(/(\n|\0)/g, '')].join('');
-
+		if (!(certificates.cert && certificates.key)) {
+			certificates.cert = decodeCertificate('public.cert');
+			certificates.key = decodeCertificate('private.key');
 		}
 		return certificates;
 	};
@@ -40,8 +40,8 @@ export const getJwtCertificates = (function () {
 /** sign JWT with private key */
 export function signToken(user: User): string {
 	const payload = { userId: user.id };
-	const { privateKey } = getJwtCertificates();
-	return jwt.sign(payload, privateKey, {
+	const { key } = getJwtCertificates();
+	return jwt.sign(payload, key, {
 		algorithm: 'RS256',
 		expiresIn: process.env.TOKEN_LIFETIME
 	});

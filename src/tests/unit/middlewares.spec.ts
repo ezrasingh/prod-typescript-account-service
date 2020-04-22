@@ -24,8 +24,8 @@ describe('Middlewares library', () => {
 		before(() => {
 			mockApp = express();
 			testRouter = express.Router();
-			const { publicKey } =  getJwtCertificates();
-			mockApp.locals.publicKey = publicKey;
+			const { cert } = getJwtCertificates();
+			mockApp.locals.publicKey = cert;
 		});
 
 		beforeEach(() => {
@@ -89,8 +89,8 @@ describe('Middlewares library', () => {
 		before(() => {
 			mockApp = express();
 			testRouter = express.Router();
-			const { publicKey } =  getJwtCertificates();
-			mockApp.locals.publicKey = publicKey;
+			const { cert } = getJwtCertificates();
+			mockApp.locals.publicKey = cert;
 		});
 
 		beforeEach(() => {

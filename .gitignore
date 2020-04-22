@@ -8,5 +8,7 @@ tmp/
 temp/
 
 *.pem
+*.key
+*.cert
 
 pg_data/

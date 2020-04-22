@@ -48,8 +48,8 @@ class Application {
 
 	/** load public key from certificate file */
 	private loadPublicKey(): void {
-		const { publicKey } = getJwtCertificates();
-		this.server.locals.publicKey = publicKey;
+		const { cert } = getJwtCertificates();
+		this.server.locals.publicKey = cert;
 	}
 
 	private middleware(): void {

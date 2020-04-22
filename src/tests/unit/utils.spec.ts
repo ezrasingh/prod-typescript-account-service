@@ -104,8 +104,8 @@ describe('Utilities library', () => {
 		let user: User;
 
 		before(() => {
-			const certs = getJwtCertificates();
-			publicKey = certs.publicKey;
+			const { cert } = getJwtCertificates();
+			publicKey = cert;
 		});
 
 		beforeEach(() => {
