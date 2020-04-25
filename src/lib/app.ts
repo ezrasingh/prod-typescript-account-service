@@ -1,7 +1,6 @@
 import { Server } from 'http';
 import { Request, Response, RequestHandler } from 'express';
 import { createHttpTerminator } from 'http-terminator';
-import * as os from 'os';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as helmet from 'helmet';
@@ -25,9 +24,8 @@ class Application {
 		this.port = port;
 		this.server = express();
 		this.logger = new Logger(
-			':id :method :url :status :res[content-length] - :response-time ms'
+			':id :method :url :status :res[content-length] - :response-time ms',
 		);
-		this.server.locals.env = process.env.NODE_ENV;
 		this.loadPublicKey();
 		this.middleware();
 		this.routes();
@@ -61,11 +59,12 @@ class Application {
 		this.server.use(this.logger.status());
 	}
 
-	private healthCheckHandler(req: Request, res: Response): RequestHandler {
+	private healthCheckHandler(_req: Request, res: Response): RequestHandler {
 		res.status(200).send({
 			status: 'UP',
-			environment: req.app.locals.env,
-			uptime: os.uptime()
+			app: process.env.npm_package_name,
+			version: process.env.npm_package_version,
+			environment: process.env.NODE_ENV,
 		});
 		return;
 	}
