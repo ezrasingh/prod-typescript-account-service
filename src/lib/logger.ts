@@ -12,19 +12,19 @@ class Logger {
 
 	public error(): RequestHandler {
 		return morgan(this.format, {
-			skip: function (req: Request, res: Response) {
-				return res.statusCode < 400 || req.app.locals.env === 'testing';
+			skip: function (_req: Request, res: Response) {
+				return res.statusCode < 400 || process.env.NODE_ENV === 'testing';
 			},
-			stream: process.stderr
+			stream: process.stderr,
 		});
 	}
 
 	public status(): RequestHandler {
 		return morgan(this.format, {
-			skip: function (req: Request, res: Response) {
-				return res.statusCode >= 400 || req.app.locals.env === 'testing';
+			skip: function (_req: Request, res: Response) {
+				return res.statusCode >= 400 || process.env.NODE_ENV === 'testing';
 			},
-			stream: process.stdout
+			stream: process.stdout,
 		});
 	}
 }

@@ -15,35 +15,35 @@ router.get('/me', [checkJwt], UserController.whoami);
 router.get(
 	'/',
 	[checkJwt, checkRole([UserRole.ADMIN])],
-	UserController.listAll
+	UserController.listAll,
 );
 
 /** Get one user */
 router.get(
 	'/:id([0-9]+)',
 	[checkJwt, checkRole([UserRole.ADMIN])],
-	UserController.getUser
+	UserController.getUser,
 );
 
 /** Create new user */
 router.post(
 	'/',
 	[checkJwt, checkRole([UserRole.ADMIN])],
-	UserController.createUser
+	UserController.createUser,
 );
 
 /** Edit one user */
 router.patch(
 	'/:id([0-9]+)',
 	[checkJwt, checkRole([UserRole.ADMIN])],
-	UserController.updateUser
+	UserController.updateUser,
 );
 
 /** Delete one user */
 router.delete(
 	'/:id([0-9]+)',
 	[checkJwt, checkRole([UserRole.ADMIN])],
-	UserController.deleteUser
+	UserController.deleteUser,
 );
 
 export default router;
