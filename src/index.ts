@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 import * as dotenv from 'dotenv';
 
-import { startServer } from './utils';
 import { Application, Database } from './lib';
 
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+	dotenv.config();
+	// console.log(process.env)
+}
 
 // ? initialize resources
 export const app = new Application(+process.env.PORT);
@@ -12,17 +14,32 @@ export const app = new Application(+process.env.PORT);
 export const db = new Database(
 	+process.env.DB_CONNECTION_RETRIES,
 	+process.env.DB_CONNECTION_WAIT,
-	process.env.DB_MASTER,
-	process.env.DB_REPLICA ? [process.env.DB_REPLICA] : []
 );
 
 /** driver code to startup runtime */
 async function run() {
 	try {
-		await startServer(app, db);
-	} catch (error) {
-		// console.log(error);
+		// tslint:disable-next-line:no-console
+		console.log('Connecting to database...');
+		try {
+			await db.connect();
+			// tslint:disable-next-line:no-console
+			console.log('Connected OK!');
+		} catch (error) {
+			// console.log(error);
+			throw new Error('Could not establish connection to database');
+		}
 
+		// tslint:disable-next-line:no-console
+		console.log('Starting server...');
+		try {
+			app.start();
+		} catch (error) {
+			// console.log(error);
+
+			throw new Error('Could not start application');
+		}
+	} catch (error) {
 		// tslint:disable-next-line:no-console
 		console.log('Service failed to run');
 		process.exit(1);

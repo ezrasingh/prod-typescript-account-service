@@ -12,7 +12,12 @@ import { passwordValidator } from '../../../controllers/AuthController';
 describe('Accounts Registration API', () => {
 	describe('POST /api/auth/register', async () => {
 		let sandbox: SinonSandbox;
-		let payload: { email: string; password: string; confirmPassword: string, profile: { firstName: string, lastName: string } };
+		let payload: {
+			email: string;
+			password: string;
+			confirmPassword: string;
+			profile: { firstName: string; lastName: string };
+		};
 		let requestHook: Function;
 
 		beforeEach(() => {
@@ -22,8 +27,8 @@ describe('Accounts Registration API', () => {
 				confirmPassword: 'userPASS123',
 				profile: {
 					firstName: 'John',
-					lastName: 'Doe'
-				}
+					lastName: 'Doe',
+				},
 			};
 
 			sandbox = createSandbox();

@@ -1,21 +1,15 @@
 import { Server } from 'http';
 import { Request, Response, RequestHandler } from 'express';
 import { createHttpTerminator } from 'http-terminator';
-import {
-	getConnectionManager,
-	getConnectionOptions,
-	ConnectionManager
-} from 'typeorm';
-import * as os from 'os';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as helmet from 'helmet';
 import * as cors from 'cors';
 import * as requestId from 'express-request-id';
 
+import { getJwtCertificates } from '../utils';
 import Logger from './logger';
 import routes from '../routes';
-import { print } from 'util';
 
 type HttpTerminator = { terminate: () => Promise<void> };
 
@@ -30,10 +24,9 @@ class Application {
 		this.port = port;
 		this.server = express();
 		this.logger = new Logger(
-			':id :method :url :status :res[content-length] - :response-time ms'
+			':id :method :url :status :res[content-length] - :response-time ms',
 		);
-		this.server.locals.env = process.env.NODE_ENV;
-		this.generateJwtSecret();
+		this.loadPublicKey();
 		this.middleware();
 		this.routes();
 	}
@@ -51,12 +44,10 @@ class Application {
 		return this.terminator.terminate();
 	}
 
-	private generateJwtSecret(): void {
-		const secretKey: string[] = [];
-		while (secretKey.length !== +process.env.SECRET_KEY_SIZE) {
-			secretKey.push(Math.random().toString(36).substring(2));
-		}
-		this.server.locals.jwtSecret = secretKey.join('');
+	/** load public key from certificate file */
+	private loadPublicKey(): void {
+		const { cert } = getJwtCertificates();
+		this.server.locals.publicKey = cert;
 	}
 
 	private middleware(): void {
@@ -68,11 +59,12 @@ class Application {
 		this.server.use(this.logger.status());
 	}
 
-	private healthCheckHandler(req: Request, res: Response): RequestHandler {
+	private healthCheckHandler(_req: Request, res: Response): RequestHandler {
 		res.status(200).send({
 			status: 'UP',
-			environment: req.app.locals.env,
-			uptime: os.uptime()
+			app: process.env.npm_package_name,
+			version: process.env.npm_package_version,
+			environment: process.env.NODE_ENV,
 		});
 		return;
 	}

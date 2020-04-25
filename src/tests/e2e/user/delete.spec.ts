@@ -8,7 +8,7 @@ import * as typeorm from 'typeorm';
 
 import { app } from '../../../index';
 import { User, UserRole } from '../../../models/User';
-import { generateToken } from '../../../utils';
+import { signToken } from '../../../utils';
 
 describe('User Delete API', () => {
 	describe('DELETE /api/user/:id', async () => {
@@ -38,13 +38,13 @@ describe('User Delete API', () => {
 			payload = {
 				email: 'user2@app.com',
 				password: 'user2PASS123',
-				role: UserRole.CUSTOMER
+				role: UserRole.CUSTOMER,
 			};
 
 			sandbox = createSandbox();
 
 			tokenHook = (user: User) => {
-				return generateToken(user, app.server.locals.jwtSecret);
+				return signToken(user);
 			};
 
 			requestHook = (id?: number, token?: string) => {
@@ -102,7 +102,7 @@ describe('User Delete API', () => {
 				.onSecondCall() // ? called by handler
 				.returns({
 					findOneOrFail: fake.resolves(mockUser),
-					delete: fake()
+					delete: fake(),
 				} as any);
 
 			const adminToken = tokenHook(mockAdmin);

@@ -11,11 +11,16 @@
       "@types/mocha": "^7.0.2",
       "@types/node": "^8.0.29",
       "@types/sinon": "^9.0.0",
+      "@types/webpack": "^4.41.12",
+      "@types/webpack-dev-server": "^3.10.1",
+      "arkit": "^1.6.4",
       "chai": "^4.2.0",
       "husky": "^4.2.5",
       "kill-port": "^1.6.0",
+      "madge": "^3.8.0",
       "mocha": "^7.1.1",
       "nodemon": "^2.0.3",
+      "nyc": "^15.0.1",
       "prettier": "2.0.4",
       "sinon": "^9.0.2",
       "supertest": "^4.0.2",
@@ -54,7 +59,7 @@
    },
    "scripts": {
       "postinstall": "cp template.env .env",
-      "clean:ports": "kill-port 5000 8000",
+      "clean:ports": "kill-port 5000",
       "start": "node -r ts-node/register ./src/index.ts start",
       "start:dev": "nodemon",
       "test:watch": "nodemon --watch . --ext ts --exec \"npm run test\"",
@@ -63,17 +68,19 @@
       "lint:fix": "npm run lint -- --fix",
       "build": "tsc",
       "bundle": "env NODE_ENV=production npm run build && webpack",
+      "coverage": "nyc --reporter=html npm run test -- --reporter min",
+      "dependency:check": "madge --circular --extensions ts ./src",
+      "dependency:graph": "arkit src -o docs/dependencies.png",
       "docker:host": "echo %DOCKER_HOST% || echo ${DOCKER_HOST}",
-      "docker:dev:db": "docker-compose -f docker-compose.yml -f docker/dev/docker-compose.yml up --build",
-      "docker:dev:db:rm" : "docker volume rm accounts_pgconf accounts_pgdata accounts_pglog",
-      "docker:dev:rm": "npm run docker:down && npm run docker:dev:db:rm && docker rm -f accounts_pg_dev",
-      "docker:dev": "npm run docker:dev:db -- -d",
-      "docker:staging": "docker-compose -f docker-compose.yml -f docker/staging/docker-compose.yml",
-      "docker:staging:build": "npm run bundle && npm run docker:staging -- build",
-      "docker:staging:rm": "docker rm -f accounts_app_staging accounts_pg_staging",
+      "docker:staging": "docker-compose -f docker-compose.yml -f ./docker/staging/docker-compose.yml up",
       "docker:down": "docker-compose down",
-      "dev": "npm run docker:dev && npm run start:dev",
-      "staging": "npm run docker:staging:build && npm run docker:staging -- up"
+      "db": "docker-compose up --build",
+      "db:sync": "typeorm schema:sync",
+      "db:rm": "docker-compose down && docker volume rm accounts_pgconf accounts_pgdata accounts_pglog",
+      "dev": "docker-compose up --build -d && npm run start:dev",
+      "staging": "npm run bundle && npm run docker:staging -- --build",
+      "staging:rm": "docker-compose down && docker rm -f accounts ",
+      "pre-commit": "npm run lint:fix && npm run test"
    },
    "nodemonConfig": {
       "ignore": [
@@ -91,11 +98,11 @@
       "useTabs": true,
       "semi": true,
       "singleQuote": true,
-      "trailingComma": "none",
+      "trailingComma": "all",
       "bracketSpacing": true,
       "arrowParens": "avoid"
    },
    "husky": {
-      "pre-commit": "tslint -c tslint.json 'src/**/*.ts'"
+      "pre-commit": "npm run pre-commit"
    }
 }

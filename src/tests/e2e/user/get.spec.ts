@@ -8,7 +8,7 @@ import * as typeorm from 'typeorm';
 
 import { app } from '../../../index';
 import { User, UserRole } from '../../../models/User';
-import { generateToken } from '../../../utils';
+import { signToken } from '../../../utils';
 
 describe('User Read API', () => {
 	describe('GET /api/user/:id', async () => {
@@ -37,7 +37,7 @@ describe('User Read API', () => {
 			sandbox = createSandbox();
 
 			tokenHook = (user: User) => {
-				return generateToken(user, app.server.locals.jwtSecret);
+				return signToken(user);
 			};
 
 			requestHook = (id?: number, token?: string) => {
@@ -86,7 +86,7 @@ describe('User Read API', () => {
 				.returns({ findOneOrFail: fake.resolves(mockAdmin) } as any)
 				.onSecondCall() // ? called by handler
 				.returns({
-					findOneOrFail: fake.resolves(mockUser)
+					findOneOrFail: fake.resolves(mockUser),
 				} as any);
 
 			const adminToken = tokenHook(mockAdmin);

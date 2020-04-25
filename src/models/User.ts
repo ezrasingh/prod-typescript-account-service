@@ -6,7 +6,7 @@ import {
 	CreateDateColumn,
 	UpdateDateColumn,
 	OneToOne,
-	JoinColumn
+	JoinColumn,
 } from 'typeorm';
 import { Length, IsEmail, IsNotEmpty } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
@@ -19,7 +19,7 @@ export enum UserRole {
 	ADMIN = 'admin',
 	CUSTOMER = 'customer',
 	STAFF = 'staff',
-	EDITOR = 'editor'
+	EDITOR = 'editor',
 }
 
 @Entity()
@@ -33,14 +33,14 @@ export class User {
 	@IsEmail()
 	email: string;
 
-	@Column({ select: false })
+	@Column()
 	@Length(8, 100)
 	password: string;
 
 	@Column({
 		type: 'enum',
 		enum: UserRole,
-		default: UserRole.CUSTOMER
+		default: UserRole.CUSTOMER,
 	})
 	@IsNotEmpty()
 	role: string;
@@ -59,7 +59,7 @@ export class User {
 	@Column({ default: 0 })
 	loginCount: number;
 
-	@OneToOne(_type => Profile, profile => profile.user, { cascade: true })
+	@OneToOne(_type => Profile, { cascade: true, onDelete: 'CASCADE' })
 	@JoinColumn()
 	profile: Profile;
 

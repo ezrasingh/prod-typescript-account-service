@@ -43,7 +43,7 @@ describe('Accounts Login API', () => {
 
 		it('should deflect if user does not exist', async () => {
 			sandbox.stub(typeorm, 'getRepository').returns({
-				findOneOrFail: fake.throws('user does not exist')
+				findOneOrFail: fake.throws('user does not exist'),
 			} as any);
 
 			const res = await requestHook().send(payload).expect(401);
@@ -65,7 +65,7 @@ describe('Accounts Login API', () => {
 		it('should issue a signed jwt upon valid credentials', async () => {
 			sandbox.stub(typeorm, 'getRepository').returns({
 				findOneOrFail: fake.resolves(mockUser),
-				save: fake()
+				save: fake(),
 			} as any);
 
 			const res = await requestHook().send(payload).expect(200);

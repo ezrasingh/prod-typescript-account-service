@@ -1,10 +1,15 @@
-import { Connection, ConnectionManager, getConnectionManager } from 'typeorm';
-import models from '../models'
+import {
+	Connection,
+	ConnectionManager,
+	getConnectionManager,
+	ConnectionOptions,
+} from 'typeorm';
+import models from '../models';
 
 class Database {
 	public connection: Connection;
 	public connectionManager: ConnectionManager;
-	private connectionOptions: any;
+	private connectionOptions: ConnectionOptions;
 
 	private maxConnectionRetries: number;
 	private reconnectionWaitTime: number;
@@ -12,25 +17,45 @@ class Database {
 	constructor(
 		maxReconnectionRetries: number,
 		reconnectionWaitTime: number,
-		dbMaster: string,
-		replicas?: string[]
+		dbPrimaryUrl?: string,
+		dbReplicas?: string[],
 	) {
 		this.maxConnectionRetries = maxReconnectionRetries;
 		this.reconnectionWaitTime = reconnectionWaitTime;
 		this.connectionOptions = {
 			type: 'postgres',
 			logging: process.env.NODE_ENV !== 'production',
-			synchronize: process.env.NODE_ENV !== 'production',
+			synchronize: true, // process.env.NODE_ENV !== 'production',
 			entities: models,
-			url: dbMaster
+			schema: process.env.DB_SCHEMA,
 		};
 
-		if (replicas.length > 0) {
-			this.connectionOptions.replication = {
-				master: { url: dbMaster },
-				slaves: replicas.map((nodeUrl, _id) => {
-					return { url: nodeUrl };
-				})
+		if (dbReplicas && dbReplicas.length > 0) {
+			// ? enable replication mode
+			this.connectionOptions = {
+				...this.connectionOptions,
+				replication: {
+					master: { url: dbPrimaryUrl },
+					slaves: dbReplicas.map((nodeUrl, _id) => {
+						return { url: nodeUrl };
+					}),
+				},
+			};
+		} else if (dbPrimaryUrl) {
+			// ? use URI based connection
+			this.connectionOptions = {
+				...this.connectionOptions,
+				url: dbPrimaryUrl,
+			};
+		} else {
+			// ? default to credentials based connection
+			this.connectionOptions = {
+				...this.connectionOptions,
+				host: process.env.DB_HOST,
+				port: +process.env.DB_PORT,
+				username: process.env.DB_USERNAME,
+				password: process.env.DB_PASSWORD,
+				database: process.env.DB_DATABASE,
 			};
 		}
 
@@ -40,7 +65,7 @@ class Database {
 	public connect = async () => {
 		if (!this.connectionManager.has('default')) {
 			this.connection = this.connectionManager.create(
-				this.connectionOptions as any
+				this.connectionOptions as any,
 			);
 		} else {
 			this.connection = this.connectionManager.get('default');
@@ -52,12 +77,14 @@ class Database {
 				await this.connection.connect();
 				break;
 			} catch (error) {
-				// console.log(error); break;
+				console.log(error);
 
 				retries -= 1;
 				// tslint:disable-next-line:no-console
 				console.warn(
-					`Connection failed attempt: ${this.maxConnectionRetries - retries}/${this.maxConnectionRetries}`
+					`Connection failed attempt: ${this.maxConnectionRetries - retries}/${
+						this.maxConnectionRetries
+					}`,
 				);
 				await new Promise(res => {
 					setTimeout(res, this.reconnectionWaitTime * 1000);
@@ -67,6 +94,13 @@ class Database {
 				}
 			}
 		}
+	};
+
+	public sync = () => {
+		this.connectionManager.create({
+			...this.connectionOptions,
+			synchronize: true,
+		} as any);
 	};
 
 	public disconnect = async () => {
@@ -85,10 +119,12 @@ class Database {
 				retries -= 1;
 				// tslint:disable-next-line:no-console
 				console.log(
-					`Disconnection failed attempt: ${this.maxConnectionRetries - retries}/${this.maxConnectionRetries}`
+					`Disconnection failed attempt: ${
+						this.maxConnectionRetries - retries
+					}/${this.maxConnectionRetries}`,
 				);
 				await new Promise(res =>
-					setTimeout(res, this.maxConnectionRetries * 1000)
+					setTimeout(res, this.maxConnectionRetries * 1000),
 				);
 			}
 		}

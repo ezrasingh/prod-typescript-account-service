@@ -1,19 +1,30 @@
 version: '3'
 
+networks:
+  private-tier:
+    driver: bridge
+
 services:
  app:
-  container_name: accounts_app_staging
+  container_name: accounts
   build: .
   restart: unless-stopped
   tty: true
   ports:
     - "5000:5000"
+  networks: 
+   - private-tier
   depends_on:
-   - pg
+   - database
   environment:
     DB_CONNECTION_RETRIES: 5
     DB_CONNECTION_WAIT: 10
-    DB_MASTER: postgresql://db:staging@pg:5432/accounts/staging
+    DB_HOST: database
+    DB_PORT: 5432
+    DB_USERNAME: app
+    DB_PASSWORD: ${DB_PASSWORD}
+    DB_DATABASE: staging
+    DB_SCHEMA: ${DB_SCHEMA}
     SECRET_KEY_SIZE: 24
     TOKEN_LIFETIME: '1h'
     BCRYPT_SALT_LEN: 10
@@ -21,12 +32,6 @@ services:
     PASSWORD_ENFORCE_LOWERCASE: 'true'
     PASSWORD_ENFORCE_NUMBERS: 'true'
     PASSWORD_ENFORCE_SYMBOLS: 'false'
- pg:
-  container_name: accounts_pg_staging
-  restart: unless-stopped
-  environment:
-    POSTGRES_PASSWORD: staging
-    POSTGRES_DB: accounts/staging
-
-
-
+ database:
+    networks: 
+     - private-tier

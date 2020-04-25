@@ -34,7 +34,9 @@ const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 
 	// ? Try to validate the token and get data
 	try {
-		const jwtPayload = jwt.verify(token, req.app.locals.jwtSecret) as any;
+		const jwtPayload = jwt.verify(token, req.app.locals.publicKey, {
+			algorithms: ['RS256'],
+		}) as any;
 		res.locals.jwtPayload = jwtPayload;
 	} catch (error) {
 		// ? If token is not valid, respond with 401 (unauthorized)

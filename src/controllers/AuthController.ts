@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
 
 import { User, UserRole, Profile, Name } from '../models';
-import { generateToken, generatePasswordSchema } from '../utils';
+import { signToken, generatePasswordSchema } from '../utils';
 
 export const passwordValidator = generatePasswordSchema();
 
@@ -42,7 +42,7 @@ class AuthController {
 		userRepository.save(user);
 
 		// ? sign JWT
-		const token = generateToken(user, req.app.locals.jwtSecret);
+		const token = signToken(user);
 
 		// ? issue token in response
 		res.send({ token });
@@ -56,8 +56,8 @@ class AuthController {
 			return;
 		}
 
-		if(!(profile.firstName && profile.lastName)){
-			res.status(400).send({ message: 'missing profile name'})
+		if (!(profile.firstName && profile.lastName)) {
+			res.status(400).send({ message: 'missing profile name' });
 			return;
 		}
 
@@ -77,7 +77,7 @@ class AuthController {
 		// ? build user entity and associated profile
 		let userProfile: Profile;
 		let user: User;
-		try{
+		try {
 			const name = new Name();
 			name.first = profile.firstName;
 			name.last = profile.lastName;
@@ -90,8 +90,8 @@ class AuthController {
 			user.password = password;
 			user.role = UserRole.CUSTOMER;
 			user.profile = userProfile;
-		} catch(error) {
-			console.log(error);
+		} catch (error) {
+			// console.log(error);
 
 			res.status(400).send({ message: 'could not register user' });
 			return;
@@ -112,6 +112,7 @@ class AuthController {
 		try {
 			await userRepository.save(user);
 		} catch (error) {
+			// console.log(error);
 			res.status(409).send({ message: 'email already in use' });
 			return;
 		}
@@ -119,7 +120,7 @@ class AuthController {
 		res.status(201).send({ message: 'user created' });
 	};
 
-	static refreshToken = async (req: Request, res: Response) => {
+	static refreshToken = async (_req: Request, res: Response) => {
 		// ? load user ID from JWT token
 		const { userId } = res.locals.jwtPayload;
 
@@ -136,7 +137,7 @@ class AuthController {
 		}
 
 		// ? generate fresh token
-		const token = generateToken(user, req.app.locals.jwtSecret);
+		const token = signToken(user);
 
 		// ? send token in response
 		res.send({ token });
@@ -144,7 +145,7 @@ class AuthController {
 
 	static changePassword = async (req: Request, res: Response) => {
 		// ? Get ID from JWT
-		const id = res.locals.jwtPayload.userId;
+		const { userId } = res.locals.jwtPayload;
 
 		// ? Get parameters from the body
 		const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -170,7 +171,7 @@ class AuthController {
 		const userRepository = getRepository(User);
 		let user: User;
 		try {
-			user = await userRepository.findOneOrFail(id);
+			user = await userRepository.findOneOrFail(userId);
 		} catch (error) {
 			// ! fail quietly to minimize
 			// ! surface area of a brute force attack

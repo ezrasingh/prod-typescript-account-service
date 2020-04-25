@@ -5,7 +5,7 @@ import 'mocha';
 import * as express from 'express';
 import * as typeorm from 'typeorm';
 import { checkJwt, checkRole } from '../../middlewares';
-import { generateToken } from '../../utils';
+import { signToken, getJwtCertificates } from '../../utils';
 import { User, UserRole } from '../../models/User';
 
 describe('Middlewares library', () => {
@@ -24,14 +24,15 @@ describe('Middlewares library', () => {
 		before(() => {
 			mockApp = express();
 			testRouter = express.Router();
-			mockApp.locals.jwtSecret = 'secret-key';
+			const { cert } = getJwtCertificates();
+			mockApp.locals.publicKey = cert;
 		});
 
 		beforeEach(() => {
 			const mockUser = new User();
 			mockUser.id = 123;
 			mockUser.email = 'user@app.com';
-			mockToken = generateToken(mockUser, mockApp.locals.jwtSecret);
+			mockToken = signToken(mockUser);
 
 			testRouter.get('/test/checkJwt', [checkJwt], mockHandler);
 			mockApp.use(testRouter);
@@ -88,7 +89,8 @@ describe('Middlewares library', () => {
 		before(() => {
 			mockApp = express();
 			testRouter = express.Router();
-			mockApp.locals.jwtSecret = 'secret-key';
+			const { cert } = getJwtCertificates();
+			mockApp.locals.publicKey = cert;
 		});
 
 		beforeEach(() => {
@@ -97,17 +99,17 @@ describe('Middlewares library', () => {
 			mockUser.email = 'editor@app.com';
 			mockUser.role = UserRole.EDITOR;
 
-			mockToken = generateToken(mockUser, mockApp.locals.jwtSecret);
+			mockToken = signToken(mockUser);
 
 			testRouter.get(
 				'/test/checkRole/staff',
 				[checkJwt, checkRole([UserRole.STAFF])],
-				mockHandler
+				mockHandler,
 			);
 			testRouter.get(
 				'/test/checkRole/editor',
 				[checkJwt, checkRole([UserRole.EDITOR])],
-				mockHandler
+				mockHandler,
 			);
 			mockApp.use(testRouter);
 

@@ -9,7 +9,7 @@ import * as classValidator from 'class-validator';
 
 import { app } from '../../../index';
 import { User, UserRole } from '../../../models/User';
-import { generateToken } from '../../../utils';
+import { signToken } from '../../../utils';
 
 describe('User Create API', () => {
 	describe('POST /api/user', async () => {
@@ -31,13 +31,13 @@ describe('User Create API', () => {
 			payload = {
 				email: 'user@app.com',
 				password: 'user2PASS123',
-				role: UserRole.CUSTOMER
+				role: UserRole.CUSTOMER,
 			};
 
 			sandbox = createSandbox();
 
 			tokenHook = (user: User) => {
-				return generateToken(user, app.server.locals.jwtSecret);
+				return signToken(user);
 			};
 
 			requestHook = (token?: string) => {

@@ -9,7 +9,7 @@ import * as typeorm from 'typeorm';
 
 import { app } from '../../../index';
 import { User, UserRole } from '../../../models/User';
-import { generateToken } from '../../../utils';
+import { signToken } from '../../../utils';
 
 describe('User Update API', () => {
 	describe('PATCH /api/user/:id', async () => {
@@ -39,13 +39,13 @@ describe('User Update API', () => {
 
 			payload = {
 				email: mockUser.email,
-				role: UserRole.CUSTOMER
+				role: UserRole.CUSTOMER,
 			};
 
 			sandbox = createSandbox();
 
 			tokenHook = (user: User) => {
-				return generateToken(user, app.server.locals.jwtSecret);
+				return signToken(user);
 			};
 
 			requestHook = (id?: number, token?: string) => {
@@ -127,7 +127,7 @@ describe('User Update API', () => {
 				.onSecondCall() // ? called by handler
 				.returns({
 					findOneOrFail: fake.resolves(mockUser),
-					save: fake.throws('email is already taken')
+					save: fake.throws('email is already taken'),
 				} as any);
 
 			sandbox.replace(classValidator, 'validate', fake.resolves([]));
@@ -145,7 +145,7 @@ describe('User Update API', () => {
 				.onSecondCall() // ? called by handler
 				.returns({
 					findOneOrFail: fake.resolves(mockUser),
-					save: fake()
+					save: fake(),
 				} as any);
 
 			sandbox.replace(classValidator, 'validate', fake.resolves([]));

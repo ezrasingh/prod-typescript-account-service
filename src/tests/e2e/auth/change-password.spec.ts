@@ -8,7 +8,7 @@ import * as typeorm from 'typeorm';
 import { app } from '../../../index';
 
 import { User, UserRole } from '../../../models/User';
-import { generateToken } from '../../../utils';
+import { signToken } from '../../../utils';
 import { passwordValidator } from '../../../controllers/AuthController';
 
 describe('Accounts Change Password API', () => {
@@ -35,13 +35,13 @@ describe('Accounts Change Password API', () => {
 			payload = {
 				oldPassword: 'userPASS123',
 				newPassword: 'newPASS123',
-				confirmPassword: 'newPASS123'
+				confirmPassword: 'newPASS123',
 			};
 
 			sandbox = createSandbox();
 
 			tokenHook = (user?: User): string => {
-				return generateToken(user, app.server.locals.jwtSecret);
+				return signToken(user);
 			};
 
 			requestHook = (token?: string) => {
@@ -95,7 +95,7 @@ describe('Accounts Change Password API', () => {
 				.returns({ isValid: true });
 
 			sandbox.stub(typeorm, 'getRepository').returns({
-				findOneOrFail: fake.throws('user does not exist')
+				findOneOrFail: fake.throws('user does not exist'),
 			} as any);
 
 			const userToken = tokenHook(mockUser);
@@ -141,7 +141,7 @@ describe('Accounts Change Password API', () => {
 
 			sandbox.stub(typeorm, 'getRepository').returns({
 				findOneOrFail: fake.resolves(mockUser),
-				save: fake()
+				save: fake(),
 			} as any);
 
 			sandbox.replace(classValidator, 'validate', fake.resolves([]));

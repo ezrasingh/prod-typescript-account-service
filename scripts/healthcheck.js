@@ -3,8 +3,8 @@ const http = require("http");
 
 const options = {
     host : "0.0.0.0",
-		port : "5000",
-		path: "/health",
+	port : process.env.PORT,
+	path: "/health",
     timeout : 2000
 };
 

@@ -1,9 +1,29 @@
 version: '3'
 
 services:
- pg:
-  image: postgres:11-alpine
+ database:
+  container_name: app_database
+  build:
+    context: ./docker/db
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  ports:
+   - ${DB_PORT}:5432
+  volumes:
+   - pgdata:/var/lib/postgresql/data
+   - pgconf:/etc/postgresql
+   - pglog:/var/log/postgresql
   environment:
-    POSTGRES_USER: db
-    POSTGRES_PASSWORD: default
+    POSTGRES_USER: admin
+    POSTGRES_PASSWORD: ${DB_PASSWORD}
+    POSTGRES_SCHEMA: accounts
+    POSTGRES_MULTIPLE_DATABASES: 'development:dev; staging:app;'
     PGDATA: /var/lib/postgresql/data/pg_data
+
+volumes:
+ pgdata:
+  driver: local
+ pgconf:
+  driver: local
+ pglog:
+  driver: local
