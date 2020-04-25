@@ -67,7 +67,7 @@ describe('User Read All API', () => {
 				.returns({ findOneOrFail: fake.resolves(mockAdmin) } as any)
 				.onSecondCall() // ? called by handler
 				.returns({
-					find: fake.resolves([, ,])
+					find: fake.resolves([, ,]),
 				} as any);
 
 			const adminToken = tokenHook(mockAdmin);

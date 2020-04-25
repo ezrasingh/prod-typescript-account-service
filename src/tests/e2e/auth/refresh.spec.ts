@@ -47,7 +47,7 @@ describe('Accounts Refresh Token API', () => {
 
 		it('should deflect if user does not exist', async () => {
 			sandbox.stub(typeorm, 'getRepository').returns({
-				findOneOrFail: fake.throws('user does not exist')
+				findOneOrFail: fake.throws('user does not exist'),
 			} as any);
 
 			const userToken = tokenHook(mockUser);

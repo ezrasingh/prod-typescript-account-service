@@ -35,7 +35,7 @@ describe('Accounts Change Password API', () => {
 			payload = {
 				oldPassword: 'userPASS123',
 				newPassword: 'newPASS123',
-				confirmPassword: 'newPASS123'
+				confirmPassword: 'newPASS123',
 			};
 
 			sandbox = createSandbox();
@@ -95,7 +95,7 @@ describe('Accounts Change Password API', () => {
 				.returns({ isValid: true });
 
 			sandbox.stub(typeorm, 'getRepository').returns({
-				findOneOrFail: fake.throws('user does not exist')
+				findOneOrFail: fake.throws('user does not exist'),
 			} as any);
 
 			const userToken = tokenHook(mockUser);
@@ -141,7 +141,7 @@ describe('Accounts Change Password API', () => {
 
 			sandbox.stub(typeorm, 'getRepository').returns({
 				findOneOrFail: fake.resolves(mockUser),
-				save: fake()
+				save: fake(),
 			} as any);
 
 			sandbox.replace(classValidator, 'validate', fake.resolves([]));

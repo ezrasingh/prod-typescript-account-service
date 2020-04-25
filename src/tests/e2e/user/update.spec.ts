@@ -39,7 +39,7 @@ describe('User Update API', () => {
 
 			payload = {
 				email: mockUser.email,
-				role: UserRole.CUSTOMER
+				role: UserRole.CUSTOMER,
 			};
 
 			sandbox = createSandbox();
@@ -127,7 +127,7 @@ describe('User Update API', () => {
 				.onSecondCall() // ? called by handler
 				.returns({
 					findOneOrFail: fake.resolves(mockUser),
-					save: fake.throws('email is already taken')
+					save: fake.throws('email is already taken'),
 				} as any);
 
 			sandbox.replace(classValidator, 'validate', fake.resolves([]));
@@ -145,7 +145,7 @@ describe('User Update API', () => {
 				.onSecondCall() // ? called by handler
 				.returns({
 					findOneOrFail: fake.resolves(mockUser),
-					save: fake()
+					save: fake(),
 				} as any);
 
 			sandbox.replace(classValidator, 'validate', fake.resolves([]));

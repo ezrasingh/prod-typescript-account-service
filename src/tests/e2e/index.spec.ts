@@ -27,7 +27,8 @@ describe('Accounts service', () => {
 
 			assert.deepEqual(res.body.status, 'UP');
 			assert.deepEqual(res.body.environment, 'testing');
-			chai.expect(res.body.uptime).to.be.a('number');
+			chai.expect(res.body.app).to.be.a('string');
+			chai.expect(res.body.version).to.be.a('string');
 		});
 	});
 });

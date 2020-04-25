@@ -38,7 +38,7 @@ describe('User Delete API', () => {
 			payload = {
 				email: 'user2@app.com',
 				password: 'user2PASS123',
-				role: UserRole.CUSTOMER
+				role: UserRole.CUSTOMER,
 			};
 
 			sandbox = createSandbox();
@@ -102,7 +102,7 @@ describe('User Delete API', () => {
 				.onSecondCall() // ? called by handler
 				.returns({
 					findOneOrFail: fake.resolves(mockUser),
-					delete: fake()
+					delete: fake(),
 				} as any);
 
 			const adminToken = tokenHook(mockAdmin);

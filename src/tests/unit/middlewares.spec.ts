@@ -104,12 +104,12 @@ describe('Middlewares library', () => {
 			testRouter.get(
 				'/test/checkRole/staff',
 				[checkJwt, checkRole([UserRole.STAFF])],
-				mockHandler
+				mockHandler,
 			);
 			testRouter.get(
 				'/test/checkRole/editor',
 				[checkJwt, checkRole([UserRole.EDITOR])],
-				mockHandler
+				mockHandler,
 			);
 			mockApp.use(testRouter);
 

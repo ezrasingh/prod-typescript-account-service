@@ -5,7 +5,7 @@ import * as jwt from 'jsonwebtoken';
 import {
 	generatePasswordSchema,
 	getJwtCertificates,
-	signToken
+	signToken,
 } from '../../utils';
 import { User } from '../../models/User';
 
@@ -42,7 +42,7 @@ describe('Utilities library', () => {
 				PASSWORD_ENFORCE_UPPERCASE: 'true',
 				PASSWORD_ENFORCE_LOWERCASE: 'false',
 				PASSWORD_ENFORCE_NUMBERS: 'false',
-				PASSWORD_ENFORCE_SYMBOLS: 'false'
+				PASSWORD_ENFORCE_SYMBOLS: 'false',
 			});
 
 			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.true;
@@ -56,7 +56,7 @@ describe('Utilities library', () => {
 				PASSWORD_ENFORCE_UPPERCASE: 'false',
 				PASSWORD_ENFORCE_LOWERCASE: 'true',
 				PASSWORD_ENFORCE_NUMBERS: 'false',
-				PASSWORD_ENFORCE_SYMBOLS: 'false'
+				PASSWORD_ENFORCE_SYMBOLS: 'false',
 			});
 
 			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.false;
@@ -70,7 +70,7 @@ describe('Utilities library', () => {
 				PASSWORD_ENFORCE_UPPERCASE: 'false',
 				PASSWORD_ENFORCE_LOWERCASE: 'false',
 				PASSWORD_ENFORCE_NUMBERS: 'true',
-				PASSWORD_ENFORCE_SYMBOLS: 'false'
+				PASSWORD_ENFORCE_SYMBOLS: 'false',
 			});
 
 			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.false;
@@ -84,7 +84,7 @@ describe('Utilities library', () => {
 				PASSWORD_ENFORCE_UPPERCASE: 'false',
 				PASSWORD_ENFORCE_LOWERCASE: 'false',
 				PASSWORD_ENFORCE_NUMBERS: 'false',
-				PASSWORD_ENFORCE_SYMBOLS: 'true'
+				PASSWORD_ENFORCE_SYMBOLS: 'true',
 			});
 
 			chai.expect(schema.checkPassword('TESTPASS').isValid).to.be.false;

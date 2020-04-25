@@ -31,7 +31,7 @@ describe('User Create API', () => {
 			payload = {
 				email: 'user@app.com',
 				password: 'user2PASS123',
-				role: UserRole.CUSTOMER
+				role: UserRole.CUSTOMER,
 			};
 
 			sandbox = createSandbox();

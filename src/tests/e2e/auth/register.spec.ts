@@ -27,8 +27,8 @@ describe('Accounts Registration API', () => {
 				confirmPassword: 'userPASS123',
 				profile: {
 					firstName: 'John',
-					lastName: 'Doe'
-				}
+					lastName: 'Doe',
+				},
 			};
 
 			sandbox = createSandbox();
