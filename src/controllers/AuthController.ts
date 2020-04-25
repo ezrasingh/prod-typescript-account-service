@@ -112,7 +112,7 @@ class AuthController {
 		try {
 			await userRepository.save(user);
 		} catch (error) {
-			// console.log(error)
+			// console.log(error);
 			res.status(409).send({ message: 'email already in use' });
 			return;
 		}
