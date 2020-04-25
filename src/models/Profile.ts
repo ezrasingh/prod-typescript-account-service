@@ -1,8 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
 import { Length, IsNotEmpty } from 'class-validator';
 
-import { User } from './User';
-
 export class Name {
 	@Column()
 	@IsNotEmpty()
@@ -24,7 +22,4 @@ export class Profile {
 	@Column({ nullable: true })
 	@Length(10, 25)
 	phoneNumber: string;
-
-	@OneToOne(_type => User, user => user.profile, { cascade: ['update'] })
-	user: User;
 }
