@@ -3,7 +3,10 @@ import * as dotenv from 'dotenv';
 
 import { Application, Database } from './lib';
 
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+	dotenv.config();
+	// console.log(process.env)
+}
 
 // ? initialize resources
 export const app = new Application(+process.env.PORT);
@@ -11,8 +14,6 @@ export const app = new Application(+process.env.PORT);
 export const db = new Database(
 	+process.env.DB_CONNECTION_RETRIES,
 	+process.env.DB_CONNECTION_WAIT,
-	process.env.DB_MASTER,
-	process.env.DB_REPLICA ? [process.env.DB_REPLICA] : []
 );
 
 /** driver code to startup runtime */
