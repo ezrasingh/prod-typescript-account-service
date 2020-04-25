@@ -75,11 +75,10 @@
       "docker:staging": "docker-compose -f docker-compose.yml -f ./docker/staging/docker-compose.yml up",
       "docker:down": "docker-compose down",
       "db": "docker-compose up --build",
-      "db:sync": "typeorm schema:sync",
       "db:rm": "docker-compose down && docker volume rm accounts_pgconf accounts_pgdata accounts_pglog",
       "dev": "docker-compose up --build -d && npm run start:dev",
       "staging": "npm run bundle && npm run docker:staging -- --build",
-      "staging:rm": "docker-compose down && docker rm -f accounts ",
+      "staging:rm": "docker-compose down && docker rm -f accounts",
       "pre-commit": "npm run lint:fix && npm run test"
    },
    "nodemonConfig": {
