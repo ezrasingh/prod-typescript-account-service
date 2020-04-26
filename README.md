@@ -30,13 +30,13 @@ Install application dependencies:
 
 ### Local Development
 
-> You will need to provide your own Postges database and set the `TYPEORM_URL` in your [`.env`](template.env) file.
+> You will need to provide your own Postges database and set the `DB_URL` in your [`.env`](template.env) file.
 
-Run application in development mode locally
+Run application in development mode locally:
 
 `npm start`
 
-Run application in development mode locally in watch mode
+Run application in development mode locally in watch mode:
 
 `npm run start:dev`
 
@@ -44,19 +44,21 @@ Run application in development mode locally in watch mode
 
 > You will need [Docker](https://www.docker.com/get-started) running on your machine.
 
-Build container for development environment
+Run development environment:
 
-`npm run docker:dev:build`
+`npm run dev`
 
-Run development environment
+Run only the development database:
 
-`npm run docker:dev`
+`npm run db`
 
-Run only the development database (*enables **TTY***)
+Remove persisted data within the Postgres container:
 
-`npm run docker:dev:db`
+`npm run db:rm`
 
-## Testing
+## Quality Assurance
+
+### Testing
 
 Run integration and unit test:
 
@@ -66,15 +68,45 @@ Start test in watch mode:
 
 `npm run test:watch`
 
-## Linting
+### Code Coverage
 
-Run TSLint and Prettier to analyze source code
+Generate a coverage report:
+
+`npm run coverage`
+
+### Linting
+
+Run TSLint and Prettier to analyze source code:
 
 `npm run lint`
 
-Run TSLint and Prettier to correct syntax issues
+Run TSLint and Prettier to correct syntax issues:
 
 `npm run lint:fix`
+
+### Mapping Dependencies
+
+Check for circular dependencies:
+
+`npm run dependency:check`
+
+Generate a depepndency graph: 
+
+`npm run dependency:graph`
+
+> The report can be found at: [`docs/dependency.png`](docs/dependencies.png)
+
+## Staging Environment
+
+Build and run staging environment:
+
+`npm run staging`
+
+Remove staging environment container:
+
+`npm run staging:rm`
+
+## Important Notes
 
 ### Running in Windows
 
@@ -84,13 +116,13 @@ Docker on windows utilizes a [local virtual machine](https://docs.docker.com/mac
 
 `npm run docker:host`
 
-Use the IP address from the previous step to access your dev environments Postgres database. Configure `TYPEORM_URL` environment variable with the following template:
+Use the IP address from the previous step to access your dev environments Postgres database. Configure `DB_HOST` environment variable with the following template:
 
-`postgresql://db:development@<docker-machine-ip>:5001/app/development`
+`DB_HOST=<docker-machine-ip>`
 
 This is also the IP address used to access the service via the staging environment. Here is an example request with [curl](https://curl.haxx.se/docs/manpage.html):
 
-`curl https://<docker-machine-ip>:8080/health`
+`curl http://<docker-machine-ip>:5000/health`
 
 ## License
 
