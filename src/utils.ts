@@ -39,7 +39,7 @@ export const getJwtCertificates = (function () {
 
 /** sign JWT with private key */
 export function signToken(user: User): string {
-	const payload = { userId: user.id };
+	const payload = { userId: user.id, role: user.role };
 	const { key } = getJwtCertificates();
 	return jwt.sign(payload, key, {
 		algorithm: 'RS256',
