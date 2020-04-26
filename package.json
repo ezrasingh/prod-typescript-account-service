@@ -58,7 +58,6 @@
       "validate-password": "^1.0.4"
    },
    "scripts": {
-      "postinstall": "cp template.env .env",
       "clean:ports": "kill-port 5000",
       "start": "node -r ts-node/register ./src/index.ts start",
       "start:dev": "nodemon",
@@ -79,7 +78,7 @@
       "dev": "docker-compose up --build -d && npm run start:dev",
       "staging": "npm run bundle && npm run docker:staging -- up --build",
       "staging:rm": "docker-compose down && docker rm -f accounts",
-      "build:image": "npm run test && npm run bundle && npm run docker:staging -- build",
+      "build:image": "docker build .",
       "pre-commit": "npm run lint:fix && npm run test"
    },
    "nodemonConfig": {

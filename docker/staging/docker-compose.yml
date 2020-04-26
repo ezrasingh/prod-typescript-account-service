@@ -6,13 +6,13 @@ networks:
 
 services:
  app:
-  container_name: accounts
+  container_name: accounts_staging
   build: .
   restart: unless-stopped
   tty: true
   ports:
     - "5000:5000"
-  networks: 
+  networks:
    - private-tier
   depends_on:
    - database
@@ -33,5 +33,5 @@ services:
     PASSWORD_ENFORCE_NUMBERS: 'true'
     PASSWORD_ENFORCE_SYMBOLS: 'false'
  database:
-    networks: 
+    networks:
      - private-tier
