@@ -62,7 +62,7 @@ Remove persisted data within the Postgres container:
 
 Run integration and unit test:
 
-`npm run test`
+`npm test`
 
 Start test in watch mode:
 
