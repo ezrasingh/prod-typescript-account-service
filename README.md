@@ -106,6 +106,14 @@ Remove staging environment container:
 
 `npm run staging:rm`
 
+## Production
+
+Build production image:
+
+`npm run build:image`
+
+Docker will provide an image and tag which can be used for containerized deployments such as: [Kubernetes](https://kubernetes.io/) or [Docker Hub](https://hub.docker.com/).
+
 ## Important Notes
 
 ### Running in Windows
