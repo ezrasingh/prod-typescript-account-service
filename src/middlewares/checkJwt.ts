@@ -14,11 +14,11 @@ const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 	if (req.headers.authorization) {
 		req.headers.Authorization = req.headers.authorization as string;
 	}
+
+	let credentials = req.headers.Authorization as string;
+
 	// ? Check Authorization header
-	if (
-		!req.headers.Authorization ||
-		!req.headers.Authorization.startsWith('Bearer ')
-	) {
+	if (!credentials || !credentials.startsWith('Bearer ')) {
 		res.status(400).send({ message: 'invalid authorization header' });
 		return;
 	}
@@ -26,7 +26,7 @@ const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 	let token: string;
 	// ? Get the jwt token from the head
 	try {
-		token = req.headers.Authorization.split('Bearer ')[1];
+		token = credentials.split('Bearer ')[1];
 	} catch (error) {
 		res.status(401).send({ message: 'authorization token is required' });
 		return;
