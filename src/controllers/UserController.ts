@@ -82,7 +82,7 @@ class UserController {
 
 		// ? Get parameters from body
 		const { email, role } = req.body;
-		if (!(email && role)) {
+		if (!(email || role)) {
 			res.status(400).send({ message: 'missing request body' });
 			return;
 		}
@@ -98,8 +98,8 @@ class UserController {
 		}
 
 		// ? Validate updated values on the model
-		user.email = email;
-		user.role = role;
+		user.email = email ? email : user.email;
+		user.role = role ? role : user.role;
 		const errors = await validate(user);
 		if (errors.length > 0) {
 			res.status(400).send({ errors });
